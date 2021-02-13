@@ -1062,14 +1062,14 @@ export default function KachaBillForm({ route, navigation }) {
                 onPress={async () => {
                   try {
                     const Camera = await Permissions.getAsync(Permissions.CAMERA);
-                    const camera_roll = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+                    const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
 
                     let result = { cancelled: true };
 
                     if (!Camera.granted) {
                       Permissions.askAsync(Permissions.CAMERA);
                     } else if (!camera_roll.granted) {
-                      Permissions.askAsync(Permissions.CAMERA_ROLL);
+                      Permissions.askAsync(Permissions.MEDIA_LIBRARY);
                     } else {
                       const options = {
                         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -1123,14 +1123,14 @@ export default function KachaBillForm({ route, navigation }) {
                 onPress={async () => {
                   try {
                     const Camera = await Permissions.getAsync(Permissions.CAMERA);
-                    const camera_roll = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+                    const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
 
                     let result = { cancelled: true };
 
                     if (!Camera.granted) {
                       Permissions.askAsync(Permissions.CAMERA);
                     } else if (!camera_roll.granted) {
-                      Permissions.askAsync(Permissions.CAMERA_ROLL);
+                      Permissions.askAsync(Permissions.MEDIA_LIBRARY);
                     } else {
                       const options = {
                         mediaTypes: ImagePicker.MediaTypeOptions.Images,

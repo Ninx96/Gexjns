@@ -383,6 +383,7 @@ function Dashboard(props) {
             }}
           />
           <List.Item
+            onPress={() => props.navigation.navigate("FabricStock")}
             title={"Fabric Stock"}
             description={figures.fabric_stock}
             style={{
@@ -400,6 +401,7 @@ function Dashboard(props) {
           <Grid>
             <Col style={{ padding: 5 }}>
               <List.Item
+                onPress={() => props.navigation.navigate("KajButton")}
                 title={"Cutting"}
                 description={parseFloat(figures.cutting).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
@@ -418,6 +420,7 @@ function Dashboard(props) {
             </Col>
             <Col style={{ padding: 5 }}>
               <List.Item
+                onPress={() => props.navigation.navigate("Fabrication")}
                 title={"Fabrication"}
                 description={parseFloat(figures.fabrication).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
@@ -429,6 +432,7 @@ function Dashboard(props) {
           <Grid>
             <Col style={{ padding: 5 }}>
               <List.Item
+                onPress={() => props.navigation.navigate("Washing")}
                 title={"Washing"}
                 description={parseFloat(figures.washing).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
@@ -439,6 +443,7 @@ function Dashboard(props) {
 
             <Col style={{ padding: 5 }}>
               <List.Item
+                onPress={() => props.navigation.navigate("DhagaCutting")}
                 title={"Dhaga Cutting"}
                 description={parseFloat(figures.dhaga_cutting).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
@@ -459,6 +464,7 @@ function Dashboard(props) {
             </Col>
             <Col style={{ padding: 5 }}>
               <List.Item
+                onPress={() => props.navigation.navigate("Packaging")}
                 title={"Packaging"}
                 description={parseFloat(figures.packaging).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}

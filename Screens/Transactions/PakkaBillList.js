@@ -18,6 +18,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import DatePicker from "react-native-datepicker";
 
 import Spinner from "react-native-loading-spinner-overlay";
+
 function PakkaBillList({ navigation }) {
   const { userId } = React.useContext(AuthContext);
 
@@ -40,6 +41,33 @@ function PakkaBillList({ navigation }) {
   });
 
   const widthArr = [50, 100, 200, 200, 150, 100, 140, 100, 150, 120, 200, 200, 100, 150];
+
+  const RenderItem = ({ item, index }) => (
+    <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+      <Row
+        key={index}
+        data={[
+          index + 1,
+          item.date,
+          item.company_name,
+          item.customer,
+          item.broker,
+          item.invoice_no,
+          ActionDC(item.dc_id, item.dc_no, item.customer),
+          item.dc_date,
+          item.gstin,
+          item.bill,
+          item.remarks,
+          item.tally_name,
+          item.created_by,
+          Action(item.tran_id),
+        ]}
+        style={styles.row}
+        textStyle={styles.text}
+        widthArr={widthArr}
+      />
+    </Table>
+  );
 
   const ActionDC = (dc_id, dc_no, party) => {
     return (
@@ -114,6 +142,7 @@ function PakkaBillList({ navigation }) {
       setloading(false);
     });
   };
+
   const Refresh = () => {
     postData("Transaction/BrowseSalesInvoice", param).then((data) => {
       // console.log(data);
@@ -282,33 +311,9 @@ function PakkaBillList({ navigation }) {
           <FlatList
             data={gridData}
             getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
-            initialNumToRender={5}
-            renderItem={({ item, index }) => (
-              <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-                <Row
-                  key={index}
-                  data={[
-                    index + 1,
-                    item.date,
-                    item.company_name,
-                    item.customer,
-                    item.broker,
-                    item.invoice_no,
-                    ActionDC(item.dc_id, item.dc_no, item.customer),
-                    item.dc_date,
-                    item.gstin,
-                    item.bill,
-                    item.remarks,
-                    item.tally_name,
-                    item.created_by,
-                    Action(item.tran_id),
-                  ]}
-                  style={styles.row}
-                  textStyle={styles.text}
-                  widthArr={widthArr}
-                />
-              </Table>
-            )}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            renderItem={RenderItem}
             keyExtractor={(item) => item.tran_id}
           />
         </View>

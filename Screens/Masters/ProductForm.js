@@ -8,14 +8,7 @@ import {
   Headline,
   ActivityIndicator,
 } from "react-native-paper";
-import {
-  View,
-  ScrollView,
-  SafeAreaView,
-  StyleSheet,
-  Alert,
-  Dimensions,
-} from "react-native";
+import { View, ScrollView, SafeAreaView, StyleSheet, Alert, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-community/async-storage";
 import { postData } from "../../_Services/Api_Service";
 import { AuthContext } from "../../Components/Context";
@@ -85,7 +78,7 @@ export default function ProductForm({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-       <Spinner
+      <Spinner
         visible={isloading}
         textContent={"Loading.."}
         textStyle={styles.spinnerTextStyle}
@@ -97,9 +90,7 @@ export default function ProductForm({ route, navigation }) {
       <SafeAreaView>
         <ScrollView>
           <View style={{ padding: 50 }}>
-            <Headline style={{ alignSelf: "center", marginBottom: 6 }}>
-              Fabric Details
-            </Headline>
+            <Headline style={{ alignSelf: "center", marginBottom: 6 }}>Fabric Details</Headline>
 
             <Text style={{ marginTop: 8 }}>Category</Text>
             <DropDownPicker
@@ -201,28 +192,21 @@ export default function ProductForm({ route, navigation }) {
             <View style={{ padding: 30 }}>
               <Text style={{ margin: 8 }}>Product Image</Text>
               <View style={styles.container}>
-                <Image
-                  source={Image}
-                  style={{ height: imageHeight, width: imageWidth }}
-                />
+                <Image source={Image} style={{ height: imageHeight, width: imageWidth }} />
                 <View>
                   <Button
                     mode="text"
                     onPress={async () => {
                       try {
-                        const Camera = await Permissions.getAsync(
-                          Permissions.CAMERA
-                        );
-                        const camera_roll = await Permissions.getAsync(
-                          Permissions.CAMERA_ROLL
-                        );
+                        const Camera = await Permissions.getAsync(Permissions.CAMERA);
+                        const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
 
                         let result = { cancelled: true };
 
                         if (!Camera.granted) {
                           Permissions.askAsync(Permissions.CAMERA);
                         } else if (!camera_roll.granted) {
-                          Permissions.askAsync(Permissions.CAMERA_ROLL);
+                          Permissions.askAsync(Permissions.MEDIA_LIBRARY);
                         } else {
                           const options = {
                             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -231,16 +215,12 @@ export default function ProductForm({ route, navigation }) {
                           };
                           var filename = "test.jpg";
 
-                          Alert.alert(
-                            "Select Upload Option",
-                            "Choose an Option To Continue",
-                            [
-                              {
-                                text: "Camera",
-                                onPress: async () => {
-                                  let result = await ImagePicker.launchCameraAsync(
-                                    options
-                                  ).then((result) => {
+                          Alert.alert("Select Upload Option", "Choose an Option To Continue", [
+                            {
+                              text: "Camera",
+                              onPress: async () => {
+                                let result = await ImagePicker.launchCameraAsync(options).then(
+                                  (result) => {
                                     if (!result.cancelled) {
                                       setImage({
                                         uri: result.uri,
@@ -248,15 +228,15 @@ export default function ProductForm({ route, navigation }) {
                                         image_name: filename,
                                       });
                                     }
-                                  });
-                                },
+                                  }
+                                );
                               },
-                              {
-                                text: "Gallery",
-                                onPress: async () => {
-                                  await ImagePicker.launchImageLibraryAsync(
-                                    options
-                                  ).then((result) => {
+                            },
+                            {
+                              text: "Gallery",
+                              onPress: async () => {
+                                await ImagePicker.launchImageLibraryAsync(options).then(
+                                  (result) => {
                                     if (!result.cancelled) {
                                       setImage({
                                         uri: result.uri,
@@ -265,11 +245,11 @@ export default function ProductForm({ route, navigation }) {
                                         image_name: filename,
                                       });
                                     }
-                                  });
-                                },
+                                  }
+                                );
                               },
-                            ]
-                          );
+                            },
+                          ]);
                         }
                       } catch (err) {
                         console.warn(err);
@@ -281,10 +261,7 @@ export default function ProductForm({ route, navigation }) {
                   <Button
                     mode="text"
                     onPress={() => {
-                      getData(
-                        "DashboardComplaint/PostProductImage",
-                        Image
-                      ).then((data) => {
+                      getData("DashboardComplaint/PostProductImage", Image).then((data) => {
                         console.log("Image1:" + data.type);
                         if (data.valid) {
                           setParam({
@@ -327,8 +304,6 @@ export default function ProductForm({ route, navigation }) {
           navigation.goBack();
         }}
       />
-
-   
     </View>
   );
 }
@@ -352,14 +327,14 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     backgroundColor: "#6200ee",
-},
-fabRight: {
+  },
+  fabRight: {
     position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,
     backgroundColor: "#6200ee",
-},
+  },
   dropdown: {
     height: 45,
     marginTop: 4,

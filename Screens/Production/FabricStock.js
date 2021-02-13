@@ -1,7 +1,14 @@
 import React from "react";
-import { Text, TextInput, FAB, Searchbar, Button, TouchableRipple } from "react-native-paper";
-import { View, ScrollView, StyleSheet, Alert, FlatList } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  TextInput,
+  Searchbar,
+  Button,
+  TouchableRipple,
+  Title,
+  Portal,
+  Dialog,
+} from "react-native-paper";
+import { View, ScrollView, StyleSheet, Alert, FlatList, Dimensions } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import { AuthContext } from "../../Components/Context";
 import { postData } from "../../_Services/Api_Service";
@@ -13,22 +20,90 @@ import font from "../../fonts.js";
 
 export default function FabricStock({ navigation }) {
   const { userId } = React.useContext(AuthContext);
-
+  const [supplierList, setSupplierList] = React.useState([]);
+  const [issueList, setIssueList] = React.useState([]);
   const [gridData, setGrid] = React.useState([]);
   const [isloading, setloading] = React.useState(true);
+  const [modal, setModal] = React.useState({
+    supplier: false,
+  });
   const [param, setParam] = React.useState({
     user_id: "",
     search: "",
-    skip: 0,
-    from_date: "",
-    to_date: "",
+
+    tran_id: "",
+    process_id: "12",
+    issueto_id: "",
+    supplier_id: "",
+    supplier: "",
+    date: "",
+    target_date: "",
+    return_to_date: "",
+    remarks: "",
+    pur_tran: [],
   });
 
   const type = "";
 
   const Grid = [];
 
-  const widthArr = [50, 100, 100, 100, 80, 100, 100, 100, 100, 100, 100];
+  const widthArr = [100, 100, 100, 80, 100, 100, 100, 100, 100, 100];
+
+  const RenderItem = ({ item, index }) => (
+    <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+      <Row
+        key={index}
+        data={[
+          //index + 1,
+          item.date,
+          item.roll_no,
+          item.qty,
+          Action(item),
+          item.supplier,
+          item.fabric_category,
+          item.short_no,
+          item.fabric_name,
+          item.color,
+          item.description,
+        ]}
+        style={styles.row}
+        textStyle={styles.text}
+        widthArr={widthArr}
+      />
+    </Table>
+  );
+
+  const Action = (item) => {
+    return (
+      <Button
+        mode="contained"
+        color="green"
+        compact={true}
+        onPress={() => {
+          param.pur_tran.push(item);
+          setParam({ ...param });
+        }}
+      >
+        Add
+      </Button>
+    );
+  };
+
+  const Action2 = (index) => {
+    return (
+      <Button
+        mode="contained"
+        color="orange"
+        compact={true}
+        onPress={() => {
+          param.pur_tran.splice(index, 1);
+          setParam({ ...param });
+        }}
+      >
+        Delete
+      </Button>
+    );
+  };
 
   const Refresh = () => {
     setloading(true);
@@ -51,6 +126,12 @@ export default function FabricStock({ navigation }) {
         param.to_date = data.to_date;
       });
     });
+    postData("StockDropdown/GetIssueList", { process_id: "12" }).then((resp) => {
+      setIssueList(resp);
+    });
+    postData("StockDropdown/GetSupplierPurchaseList", { search: "" }).then((resp) => {
+      setSupplierList(resp);
+    });
     navigation.addListener("focus", () => {
       setTimeout(() => {
         Refresh();
@@ -60,20 +141,81 @@ export default function FabricStock({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <Portal>
+        <Dialog
+          visible={modal.supplier}
+          onDismiss={() => {
+            setModal({ ...modal, supplier: false });
+          }}
+        >
+          <Dialog.Title>Select Return to </Dialog.Title>
+          <Dialog.Content>
+            <SearchableDropdown
+              onItemSelect={(item) => {
+                setParam({ ...param, supplier_id: item.id, supplier: item.name });
+              }}
+              containerStyle={{ padding: 1 }}
+              itemStyle={{
+                padding: 10,
+                marginTop: 2,
+                backgroundColor: "#fff",
+                borderColor: "#000",
+                borderWidth: 1,
+                borderRadius: 5,
+              }}
+              itemTextStyle={{ color: "#222" }}
+              itemsContainerStyle={{ maxHeight: 140 }}
+              items={supplierList}
+              defaultIndex={2}
+              resetValue={false}
+              textInputProps={{
+                placeholder: "Search Supplier",
+                underlineColorAndroid: "transparent",
+                style: {
+                  padding: 13,
+                  borderWidth: 1,
+                  borderColor: "#7b7070",
+                  borderRadius: 5,
+                },
+                onTextChange: (text) => {
+                  postData("StockDropdown/GetSupplierPurchaseList", { search: text }).then(
+                    (resp) => {
+                      setSupplierList(resp);
+                    }
+                  );
+                },
+              }}
+              listProps={{
+                nestedScrollEnabled: true,
+              }}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setModal({ ...modal, supplier: false });
+              }}
+            >
+              Done
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
       <ScrollView>
         <Searchbar style={{ flex: 10 }} placeholder="Search" onChangeText={(text) => {}} />
         <View>
+          <Title>Selected Item</Title>
           <ScrollView horizontal={true}>
             <View>
               <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
                 <Row
                   data={[
-                    "S No.",
+                    //"S No.",
                     "Date",
-                    "Supplier",
                     "Roll No.",
                     "Qty",
                     "Action",
+                    "Supplier",
                     "Fabric Cat.",
                     "Short No.",
                     "Fabric Name",
@@ -87,21 +229,22 @@ export default function FabricStock({ navigation }) {
               </Table>
               <ScrollView>
                 <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
-                  {Grid.map((item, index) => {
+                  {param.pur_tran.map((item, index) => {
                     return (
                       <Row
                         key={index}
                         data={[
-                          index + 1,
-                          item.barcode,
+                          //index + 1,
+                          item.date,
+                          item.roll_no,
                           item.qty,
-                          item.rate,
+                          Action2(index),
+                          item.supplier,
+                          item.fabric_category,
+                          item.short_no,
+                          item.fabric_name,
+                          item.color,
                           item.description,
-                          item.hsn,
-                          Taxes(item, index),
-                          item.amount,
-                          item.total,
-                          <FontAwesome name="times" size={30} color="red" onPress={() => {}} />,
                         ]}
                         style={styles.row}
                         textStyle={styles.text}
@@ -139,13 +282,14 @@ export default function FabricStock({ navigation }) {
               <Picker
                 selectedValue={type}
                 style={{ height: 45, width: "100%" }}
-                onValueChange={(itemValue, itemIndex) => {}}
+                onValueChange={(itemValue, itemIndex) => {
+                  setParam({ ...param, issueto_id: itemValue });
+                }}
               >
                 <Picker.Item label="- - -Select Type- - -" value="" />
-                <Picker.Item label="Online Sales User" value="Sales" />
-                <Picker.Item label="Distributor" value="Distributor" />
-                <Picker.Item label="Retailor" value="Retailor" />
-                <Picker.Item label="Admin" value="Admin" />
+                {issueList.map((item) => (
+                  <Picker.Item label={item.name} value={item.id} />
+                ))}
               </Picker>
             </View>
 
@@ -156,11 +300,13 @@ export default function FabricStock({ navigation }) {
               showIcon={false}
               placeholder="Issue Date"
               format="DD/MM/YYYY"
-              onDateChange={(date) => {}}
+              onDateChange={(date) => {
+                setParam({ ...param, date: date });
+              }}
               customStyles={{
                 dateInput: {
                   borderRadius: 5,
-                  alignItems: "flex-start",
+                  alignpur_tran: "flex-start",
                   height: 45,
                   padding: 14,
                 },
@@ -173,11 +319,13 @@ export default function FabricStock({ navigation }) {
               showIcon={false}
               placeholder="Target Date"
               format="DD/MM/YYYY"
-              onDateChange={(date) => {}}
+              onDateChange={(date) => {
+                setParam({ ...param, target_date: date });
+              }}
               customStyles={{
                 dateInput: {
                   borderRadius: 5,
-                  alignItems: "flex-start",
+                  alignpur_tran: "flex-start",
                   height: 45,
                   padding: 14,
                 },
@@ -185,14 +333,19 @@ export default function FabricStock({ navigation }) {
             />
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
-            <TouchableRipple style={{ width: "20%", height: 45 }} onPress={() => {}}>
+            <TouchableRipple
+              style={{ width: "20%", height: 45 }}
+              onPress={() => {
+                setModal({ ...modal, supplier: true });
+              }}
+            >
               <TextInput
                 style={{ width: "100%", height: 45 }}
                 mode="outlined"
                 label={"Return To"}
                 placeholder="Select Return To"
                 editable={false}
-                //value={param.customer}
+                value={param.supplier}
               ></TextInput>
             </TouchableRipple>
             <DatePicker
@@ -202,11 +355,13 @@ export default function FabricStock({ navigation }) {
               showIcon={false}
               placeholder="Return to Date"
               format="DD/MM/YYYY"
-              onDateChange={(date) => {}}
+              onDateChange={(date) => {
+                setParam({ ...param, return_to_date: date });
+              }}
               customStyles={{
                 dateInput: {
                   borderRadius: 5,
-                  alignItems: "flex-start",
+                  alignpur_tran: "flex-start",
                   height: 45,
                   padding: 14,
                 },
@@ -215,17 +370,39 @@ export default function FabricStock({ navigation }) {
             <TextInput
               style={{ width: "40%", height: 45 }}
               mode="outlined"
-              label={"Return To"}
-              placeholder="Select Return To"
-              editable={false}
-              //value={param.customer}
+              label={"Remarks"}
+              placeholder="Remarks"
+              onChangeText={(text) => {
+                setParam({ ...param, remarks: text });
+              }}
+              value={param.remarks}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "flex-end", marginVertical: 5 }}>
-            <Button mode="contained" style={{ marginHorizontal: 5 }} color="red">
+            <Button
+              mode="contained"
+              style={{ marginHorizontal: 5 }}
+              color="red"
+              onPress={() => {
+                postData("Production/InsertProductionFabricReturn", param).then(() => {
+                  alert("Saved Succeessfully...");
+                  setParam({});
+                });
+              }}
+            >
               Return
             </Button>
-            <Button mode="contained" style={{ marginHorizontal: 5 }} color="red">
+            <Button
+              mode="contained"
+              style={{ marginHorizontal: 5 }}
+              color="red"
+              onPress={() => {
+                postData("Production/InsertProductionFabricStock", param).then(() => {
+                  alert("Saved Succeessfully...");
+                  setParam({});
+                });
+              }}
+            >
               Save
             </Button>
           </View>
@@ -236,12 +413,12 @@ export default function FabricStock({ navigation }) {
               <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
                 <Row
                   data={[
-                    "S No.",
+                    //"S No.",
                     "Date",
-                    "Supplier",
                     "Roll No.",
                     "Qty",
                     "Action",
+                    "Supplier",
                     "Fabric Cat.",
                     "Short No.",
                     "Fabric Name",
@@ -257,30 +434,9 @@ export default function FabricStock({ navigation }) {
                 data={gridData}
                 getItemLayout={(data, index) => ({ length: 40, offset: 40 * index, index })}
                 initialNumToRender={5}
-                renderItem={({ item, index }) => (
-                  <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-                    <Row
-                      key={index}
-                      data={[
-                        index + 1,
-                        item.date,
-                        item.supplier,
-                        item.roll_no,
-                        item.qty,
-                        "",
-                        item.fabric_category,
-                        item.short_no,
-                        item.fabric_name,
-                        item.color,
-                        item.description,
-                      ]}
-                      style={styles.row}
-                      textStyle={styles.text}
-                      widthArr={widthArr}
-                    />
-                  </Table>
-                )}
-                keyExtractor={(item) => item.tran_id}
+                maxToRenderPerBatch={5}
+                renderItem={RenderItem}
+                keyExtractor={(item) => item.roll_no}
               />
             </View>
           </ScrollView>

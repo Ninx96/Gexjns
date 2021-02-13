@@ -24,6 +24,14 @@ import RptPo from "./Transactions/RptPo";
 import RptSales from "./Transactions/RptSales";
 import RptPakingSlip from "./Transactions/RptPackingSlip";
 import RptDeliveryCahllan from "./Transactions/RptDeliveryChallan";
+import Fabrication from "./Production/Fabrication";
+import DailyWashing from "./Production/DailyWashing";
+import KajButton from "./Production/KajButton";
+import Washing from "./Production/Washing";
+import DhagaCutting from "./Production/DhagaCutting";
+import Packaging from "./Production/Packaging";
+import ChallanInvoice from "./Production/ChallanInvoice";
+import IssueFactoryStore from "./Production/IssueFactoryStrore";
 
 function DashboardStack(prop) {
   const Stack = createStackNavigator();
@@ -210,9 +218,72 @@ function DashboardStack(prop) {
       {/* -------------------------------------------------------------- */}
       <Stack.Screen
         name="test"
-        component={FabricStock}
+        component={ChallanInvoice}
         options={{
           headerTitle: "Test",
+        }}
+      />
+      <Stack.Screen
+        name="Fabrication"
+        component={Fabrication}
+        options={{
+          headerTitle: "Fabrication",
+        }}
+      />
+      <Stack.Screen
+        name="FabricStock"
+        component={FabricStock}
+        options={{
+          headerTitle: "FabricStock",
+        }}
+      />
+      <Stack.Screen
+        name="KajButton"
+        component={KajButton}
+        options={{
+          headerTitle: "KajButton",
+        }}
+      />
+      <Stack.Screen
+        name="Washing"
+        component={Washing}
+        options={{
+          headerTitle: "Washing",
+        }}
+      />
+      <Stack.Screen
+        name="DhagaCutting"
+        component={DhagaCutting}
+        options={{
+          headerTitle: "DhagaCutting",
+        }}
+      />
+      <Stack.Screen
+        name="Packaging"
+        component={Packaging}
+        options={{
+          headerTitle: "Packaging",
+        }}
+      />
+      <Stack.Screen
+        name="DailyWashing"
+        component={DailyWashing}
+        options={{
+          headerTitle: "Daily Washing",
+        }}
+      />
+      <Stack.Screen
+        name="ChallanInvoice"
+        component={ChallanInvoice}
+        options={{
+          headerTitle: "Challan Invoice",
+        }}
+      />
+      <Stack.Screen
+        name="IssueFactoryStore"
+        component={IssueFactoryStore}
+        options={{
+          headerTitle: "Issue Factory Store",
         }}
       />
     </Stack.Navigator>

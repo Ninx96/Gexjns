@@ -11,16 +11,7 @@ import {
   Chip,
   Title,
 } from "react-native-paper";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Image,
-  Alert,
-  PermissionsAndroid,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Image, Alert, Dimensions } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
@@ -384,7 +375,6 @@ export default function PoDetailsForm({ route, navigation }) {
               style={styles.input}
               mode="outlined"
               label={"Pethi"}
-              keyboardType="numeric"
               value={param.no_of_partial}
               onChangeText={(text) => {
                 setParam({
@@ -456,14 +446,14 @@ export default function PoDetailsForm({ route, navigation }) {
                 onPress={async () => {
                   try {
                     const Camera = await Permissions.getAsync(Permissions.CAMERA);
-                    const camera_roll = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+                    const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
 
                     let result = { cancelled: true };
 
                     if (!Camera.granted) {
                       Permissions.askAsync(Permissions.CAMERA);
                     } else if (!camera_roll.granted) {
-                      Permissions.askAsync(Permissions.CAMERA_ROLL);
+                      Permissions.askAsync(Permissions.MEDIA_LIBRARY);
                     } else {
                       const options = {
                         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -946,7 +936,7 @@ export default function PoDetailsForm({ route, navigation }) {
                   navigation.navigate("podetaillist");
                 } else {
                   Alert.alert(data.msg);
-                  console.log(data.msg);
+                  //console.log(data.msg);
                 }
                 setloading(false);
               });

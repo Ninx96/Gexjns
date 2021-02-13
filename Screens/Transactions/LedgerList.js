@@ -125,7 +125,7 @@ function LedgerList({ navigation }) {
           let newrr = [...gridData];
           newrr[index].selected = e;
           setGrid(newrr);
-          console.log(newrr);
+          //console.log(newrr);
         }}
       />
     );
@@ -184,7 +184,7 @@ function LedgerList({ navigation }) {
           let newrr = [...paymentGridData];
           newrr[index].selected = e;
           setPaymentGrid(newrr);
-          console.log(newrr);
+          //console.log(newrr);
         }}
       />
     );

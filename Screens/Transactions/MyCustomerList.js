@@ -124,7 +124,7 @@ export default function MyCustomerList({ navigation }) {
           let newrr = [...gridData];
           newrr[index].selected = e;
           setGrid(newrr);
-          console.log(newrr);
+          //console.log(newrr);
         }}
       />
     );
@@ -161,7 +161,7 @@ export default function MyCustomerList({ navigation }) {
           let newrr = [...paymentGridData];
           newrr[index].selected = e;
           setPaymentGrid(newrr);
-          console.log(newrr);
+          //console.log(newrr);
         }}
       />
     );
@@ -169,14 +169,14 @@ export default function MyCustomerList({ navigation }) {
 
   const Refresh = () => {
     postData("Transaction/BrowseMyCustomer", param).then((data) => {
-      console.log(data);
+      //console.log(data);
       setGrid(data);
     });
   };
 
   const Refresh2 = () => {
     postData("Transaction/BrowseMyCustomerPayment", modal).then((data) => {
-      console.log(data);
+      //console.log(data);
       setPaymentGrid(data);
     });
   };
