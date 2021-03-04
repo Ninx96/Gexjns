@@ -47,6 +47,7 @@ export default function DailyWashing({ route, navigation }) {
   const [param, setParam] = React.useState({
     tran_id: reqParam.tran_id === undefined ? 0 : reqParam.tran_id,
     date: moment().format("DD/MM/YYYY"),
+    target_date: moment().format("DD/MM/YYYY"),
     lr_no: "",
     washing_id: "",
     mode: "Bill",
@@ -97,8 +98,8 @@ export default function DailyWashing({ route, navigation }) {
     shortage: "0",
     excess: "0",
 
-    date: "",
-    target_date: "",
+    date: moment().format("DD/MM/YYYY"),
+    target_date: moment().format("DD/MM/YYYY"),
     remarks: "",
     user_id: "",
   };
@@ -550,13 +551,13 @@ export default function DailyWashing({ route, navigation }) {
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
             <DatePicker
               style={{ width: "40%", marginTop: 10, marginBottom: 4 }}
-              date={new Date()}
+              date={param.target_date}
               mode="date"
               showIcon={false}
               placeholder="Target Date"
               format="DD/MM/YYYY"
               onDateChange={(date) => {
-                // setParam({ ...param, t: date });
+                setParam({ ...param, target_date: date });
               }}
               customStyles={{
                 dateInput: {

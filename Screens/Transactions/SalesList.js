@@ -27,8 +27,6 @@ function SalesList({ navigation }) {
   });
 
   const itemsPerPage = gridData.length > 10 ? 10 : gridData.length;
-  const from = page * itemsPerPage;
-  const to = (page + 1) * itemsPerPage;
 
   const widthArr = [50, 100, 100, 200, 80, 80, 150, 150, 120];
   const img = (file_path) => {

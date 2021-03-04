@@ -20,6 +20,7 @@ import DatePicker from "react-native-datepicker";
 import Spinner from "react-native-loading-spinner-overlay";
 import ImageViewer from "react-native-image-zoom-viewer";
 import DropDownPicker from "react-native-dropdown-picker";
+
 function kachaBillList({ navigation }) {
   const { userId } = React.useContext(AuthContext);
 
@@ -48,9 +49,7 @@ function kachaBillList({ navigation }) {
     from_date: "",
     to_date: "",
   });
-  const itemsPerPage = gridData.length > 10 ? 10 : gridData.length;
-  const from = page * itemsPerPage;
-  const to = (page + 1) * itemsPerPage;
+
   const widthArr = [50, 100, 120, 150, 150, 100, 150, 70, 150, 150, 100, 150, 100, 150];
   const [imgmodal, setImgModal] = React.useState(false);
   const [images, setImages] = React.useState([{ url: "../../assets/upload.png" }]);
@@ -308,33 +307,7 @@ function kachaBillList({ navigation }) {
               widthArr={widthArr}
             />
           </Table>
-          {/* {gridData.map((item, index) => {
-            return (
-              <Row
-                key={index}
-                data={[
-                  index + 1,
-                  item.date,
-                  item.dc_no,
-                  item.customer,
-                  item.broker,
-                  item.builty_no,
-                  item.transport,
-                  item.qty,
-                  item.mycustomer,
-                  item.remarks,
-                  Invoice(item.invoice_id, item.invoice_no),
-                  img(item.attachment),
-                  item.status,
-                  // item.status_remarks,
-                  Action(item.tran_id, item.status, item.status_remarks, item.customer, item.dc_no),
-                ]}
-                style={styles.row}
-                textStyle={styles.text}
-                widthArr={widthArr}
-              />
-            );
-          })} */}
+
           <FlatList
             data={gridData}
             getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
@@ -357,7 +330,7 @@ function kachaBillList({ navigation }) {
                     Invoice(item.invoice_id, item.invoice_no),
                     img(item.attachment),
                     item.status,
-                    // item.status_remarks,
+
                     Action(
                       item.tran_id,
                       item.status,

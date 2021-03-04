@@ -72,6 +72,7 @@ export default function PoDetailsForm({ route, navigation }) {
     broker_id: "",
     emp_id: "",
     mobile: "",
+    loose: "",
     no_of_partial: "",
     details_item: "",
     billing: "",
@@ -217,6 +218,7 @@ export default function PoDetailsForm({ route, navigation }) {
           emp_id: resp.emp_id == 0 ? "" : resp.emp_id,
           mobile: resp.mobile,
           no_of_partial: resp.no_of_partial,
+          loose: resp.loose,
           billing: resp.billing,
           remarks: resp.remarks,
           transport: resp.transport,
@@ -376,10 +378,24 @@ export default function PoDetailsForm({ route, navigation }) {
               mode="outlined"
               label={"Pethi"}
               value={param.no_of_partial}
+              keyboardType="number-pad"
               onChangeText={(text) => {
                 setParam({
                   ...param,
                   no_of_partial: text,
+                });
+              }}
+            ></TextInput>
+
+            <TextInput
+              style={styles.input}
+              mode="outlined"
+              label={"Loose"}
+              value={param.loose}
+              onChangeText={(text) => {
+                setParam({
+                  ...param,
+                  loose: text,
                 });
               }}
             ></TextInput>
@@ -910,8 +926,8 @@ export default function PoDetailsForm({ route, navigation }) {
               alert("Please Select Party");
             } else if (param.po_no == "") {
               alert("Please Fill Po No");
-            } else if (param.no_of_partial == "") {
-              alert("Please Fill Pethi");
+            } else if (param.no_of_partial == "" && param.loose == "") {
+              alert("Please Fill Either Pethi OR Loose");
             } else {
               setloading(true);
               IsizeList.sizeList.map((item, key) => {
@@ -935,7 +951,7 @@ export default function PoDetailsForm({ route, navigation }) {
                   Alert.alert("Form Save Succeessfully!!");
                   navigation.navigate("podetaillist");
                 } else {
-                  Alert.alert(data.msg);
+                  Alert.alert("Error", data.msg);
                   //console.log(data.msg);
                 }
                 setloading(false);

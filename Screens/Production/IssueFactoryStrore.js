@@ -36,17 +36,44 @@ export default function IssueFactoryStore({ route, navigation }) {
   const [isloading, setloading] = React.useState(true);
   const [partyList, setpartyList] = React.useState([]);
   const [param, setParam] = React.useState({
-    tran_id: reqParam.tran_id,
+    tran_id: "0",
+    packaging_id: reqParam.tran_id,
     date: moment().format("DD/MM/YYYY"),
+    process_id: "16",
     process: reqParam.process,
+    receivefrom_id: reqParam.issueto_id,
     receive_from: "Packing",
-    issue_to: reqParam.issue_to,
-    issue_date: reqParam.issue_date,
     lot_no: reqParam.lot_no,
     qty: reqParam.qty,
-    issueto_id: reqParam.issueto_id,
+    qty1: reqParam.qty,
     size: reqParam.size,
+    hala: reqParam.hala,
+    color: "",
+    price: "",
+    shortage: "",
+    excess: "",
+    barcode: "",
     remarks: reqParam.remarks,
+    alter: "",
+    alter_party_id: "",
+    alter_party_type: "",
+    alter_party_name: "",
+    chain: "",
+    chain_party_id: "",
+    chain_party_type: "",
+    chain_party_name: "",
+    debit_fabrication: "",
+    debit_fabrication_id: "",
+    debit_fabrication_type: "",
+    debit_fabrication_name: "",
+    debit_washing: "",
+    debit_washing_id: "",
+    debit_washing_type: "",
+    debit_washing_name: "",
+    balance_pic_assortment: "",
+    assortment: "",
+    comments: "",
+    user_id: "",
   });
 
   return (
@@ -71,30 +98,30 @@ export default function IssueFactoryStore({ route, navigation }) {
                 if (modal.chain) {
                   setParam({
                     ...param,
-                    customer_id: item.id,
-                    type: item.type,
-                    customer_name: item.name,
+                    chain_party_id: item.id,
+                    chain_party_type: item.type,
+                    chain_party_name: item.name,
                   });
                 } else if (modal.fabricator) {
                   setParam({
                     ...param,
-                    customer_id: item.id,
-                    type: item.type,
-                    customer_name: item.name,
+                    debit_fabrication_id: item.id,
+                    debit_fabrication_type: item.type,
+                    debit_fabrication_name: item.name,
                   });
                 } else if (modal.washing) {
                   setParam({
                     ...param,
-                    customer_id: item.id,
-                    type: item.type,
-                    customer_name: item.name,
+                    debit_fabrication_id: item.id,
+                    debit_fabrication_type: item.type,
+                    debit_washing_name: item.name,
                   });
                 } else {
                   setParam({
                     ...param,
-                    scustomer_id: item.id,
-                    stype: item.type,
-                    scustomer_name: item.name,
+                    alter_party_id: item.id,
+                    alter_party_type: item.type,
+                    alter_party_name: item.name,
                   });
                 }
               }}
@@ -122,9 +149,9 @@ export default function IssueFactoryStore({ route, navigation }) {
                   borderRadius: 5,
                 },
                 onTextChange: (text) => {
-                  postData("StockDropdown/GetSupplierPurchaseList", { search: text }).then(
+                  postData("StockDropdown/SelectPartyInDailyWashing", { search: text }).then(
                     (resp) => {
-                      setSupplierList(resp);
+                      setpartyList(resp);
                     }
                   );
                 },
@@ -220,7 +247,7 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Qty"}
               placeholder="Qty"
               editable={false}
-              value={param.qty}
+              value={param.qty1}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -238,9 +265,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Issue Qty"}
               placeholder="Issue Qty"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, qty: text });
               }}
-              value={param.issue_qty}
+              value={param.qty}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -250,9 +277,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Price"}
               placeholder="Price"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, price: text });
               }}
-              value={param.issue_qty}
+              value={param.price}
             ></TextInput>
             <TextInput
               style={{ width: "40%", height: 45 }}
@@ -260,9 +287,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Comments"}
               placeholder="Comments"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, comments: text });
               }}
-              value={param.issue_qty}
+              value={param.comments}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -272,9 +299,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Assortment"}
               placeholder="Assortment"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, assortment: text });
               }}
-              value={param.issue_qty}
+              value={param.assortment}
             ></TextInput>
             <TextInput
               style={{ width: "40%", height: 45 }}
@@ -282,9 +309,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Color"}
               placeholder="Color"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, color: text });
               }}
-              value={param.issue_qty}
+              value={param.color}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -315,7 +342,7 @@ export default function IssueFactoryStore({ route, navigation }) {
                 label={"Chain Alter Name"}
                 placeholder="Chain Alter Name"
                 editable={false}
-                value={param.customer_name}
+                value={param.chain_party_name}
               ></TextInput>
             </TouchableRipple>
             <TextInput
@@ -324,9 +351,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Qty"}
               placeholder="Qty"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, chain: text });
               }}
-              value={param.issue_qty}
+              value={param.chain}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -340,9 +367,9 @@ export default function IssueFactoryStore({ route, navigation }) {
                 style={{ width: "100%", height: 45 }}
                 mode="outlined"
                 label={"Fabricator Alter Name"}
-                placeholder="Chain Alter Name"
+                placeholder="Fabricator Alter Name"
                 editable={false}
-                value={param.customer_name}
+                value={param.debit_fabrication_name}
               ></TextInput>
             </TouchableRipple>
             <TextInput
@@ -351,9 +378,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Qty"}
               placeholder="Qty"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, debit_fabrication: text });
               }}
-              value={param.issue_qty}
+              value={param.debit_fabrication}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -367,9 +394,9 @@ export default function IssueFactoryStore({ route, navigation }) {
                 style={{ width: "100%", height: 45 }}
                 mode="outlined"
                 label={"Washing Alter Name"}
-                placeholder="Chain Alter Name"
+                placeholder="Washing Alter Name"
                 editable={false}
-                value={param.customer_name}
+                value={param.debit_washing_name}
               ></TextInput>
             </TouchableRipple>
             <TextInput
@@ -378,9 +405,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Qty"}
               placeholder="Qty"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, debit_washing: text });
               }}
-              value={param.issue_qty}
+              value={param.debit_washing}
             ></TextInput>
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}>
@@ -394,9 +421,9 @@ export default function IssueFactoryStore({ route, navigation }) {
                 style={{ width: "100%", height: 45 }}
                 mode="outlined"
                 label={"Other Alter Name"}
-                placeholder="Chain Alter Name"
+                placeholder="Other Alter Name"
                 editable={false}
-                value={param.customer_name}
+                value={param.alter_party_name}
               ></TextInput>
             </TouchableRipple>
             <TextInput
@@ -405,9 +432,9 @@ export default function IssueFactoryStore({ route, navigation }) {
               label={"Qty"}
               placeholder="Qty"
               onChangeText={(text) => {
-                setParam({ ...param, issue_qty: text });
+                setParam({ ...param, alter: text });
               }}
-              value={param.issue_qty}
+              value={param.alter}
             ></TextInput>
           </View>
         </View>
@@ -417,23 +444,17 @@ export default function IssueFactoryStore({ route, navigation }) {
         style={styles.fabRight}
         icon="check"
         onPress={() => {
-          if (param.customer_name == "") {
-            alert("Please Select BillTo");
-          } else if (param.scustomer_name == "") {
-            alert("Please Select ShipTo");
-          } else {
-            setloading(true);
-            //console.log(param);
-            postData("Production/InsertKajChallanInvoice", param).then((data) => {
-              setloading(false);
-              if (data.valid) {
-                Alert.alert("Form Save Succeessfully!!");
-                navigation.goBack();
-              } else {
-                Alert.alert("Error", data.msg);
-              }
-            });
-          }
+          setloading(true);
+          //console.log(param);
+          postData("Production/PushPackStore", param).then((data) => {
+            setloading(false);
+            if (data.valid) {
+              Alert.alert("Form Save Succeessfully!!");
+              navigation.goBack();
+            } else {
+              Alert.alert("Error", data.msg);
+            }
+          });
         }}
       />
       <FAB

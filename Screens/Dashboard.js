@@ -401,7 +401,7 @@ function Dashboard(props) {
           <Grid>
             <Col style={{ padding: 5 }}>
               <List.Item
-                onPress={() => props.navigation.navigate("KajButton")}
+                onPress={() => props.navigation.navigate("CuttingMaster")}
                 title={"Cutting"}
                 description={parseFloat(figures.cutting).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
@@ -411,7 +411,8 @@ function Dashboard(props) {
             </Col>
             <Col style={{ padding: 5 }}>
               <List.Item
-                title={"Godown"}
+                title={"Kaj Button"}
+                onPress={() => props.navigation.navigate("KajButton")}
                 description={parseFloat(figures.godown).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -434,6 +435,7 @@ function Dashboard(props) {
               <List.Item
                 onPress={() => props.navigation.navigate("Washing")}
                 title={"Washing"}
+                onPress={() => props.navigation.navigate("Washing")}
                 description={parseFloat(figures.washing).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -456,6 +458,7 @@ function Dashboard(props) {
             <Col style={{ padding: 5 }}>
               <List.Item
                 title={"Godown"}
+                onPress={() => props.navigation.navigate("Godown")}
                 description={parseFloat(figures.godown).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -477,6 +480,7 @@ function Dashboard(props) {
             <Col style={{ padding: 5 }}>
               <List.Item
                 title={"Shop Return"}
+                onPress={() => props.navigation.navigate("Shop")}
                 description={figures.shop_return}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -486,6 +490,7 @@ function Dashboard(props) {
             <Col style={{ padding: 5 }}>
               <List.Item
                 title={"Gandhi Nagar"}
+                onPress={() => props.navigation.navigate("GandhiNagar")}
                 description={figures.gandhi_nagar}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -497,6 +502,7 @@ function Dashboard(props) {
             <Col style={{ padding: 5 }}>
               <List.Item
                 title={"Aassortment"}
+                onPress={() => props.navigation.navigate("Assortment")}
                 description={parseFloat(figures.assortment).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -506,6 +512,7 @@ function Dashboard(props) {
             <Col style={{ padding: 5 }}>
               <List.Item
                 title={"Factory Store"}
+                onPress={() => props.navigation.navigate("FactoryStore")}
                 description={parseFloat(figures.factory_store).toFixed(0)}
                 style={{ width: "100%", backgroundColor: "#eee", borderRadius: 10 }}
                 titleStyle={{ fontSize: 14, fontFamily: font.medium }}
@@ -519,127 +526,112 @@ function Dashboard(props) {
   );
 
   const ThirdRoute = () => (
-    <SafeAreaView style={{ height: "100%" }}>
-      <ScrollView style={{ height: "100%" }}>
-        <View style={styles.scene}>
-          <View
-            style={{
-              padding: 5,
-              display: "flex",
-              flexDirection: "row",
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginVertical: 10,
-            }}
-          >
-            <Card style={styles.cardView} onPress={(e) => props.navigation.navigate("saleslist")}>
-              <Image source={pack} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="Packing Slip"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-
-            <Card
-              style={styles.cardView}
-              onPress={(e) => props.navigation.navigate("kachabilllist")}
-            >
-              <Image source={dc} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="Kacha Bill"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-          </View>
-          <View
-            style={{
-              padding: 5,
-              display: "flex",
-              flexDirection: "row",
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginVertical: 10,
-            }}
-          >
-            <Card
-              style={styles.cardView}
-              onPress={(e) => props.navigation.navigate("pakkabilllist")}
-            >
-              <Image source={sales} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="Pakka Bill"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-
-            <Card
-              style={styles.cardView}
-              onPress={(e) => props.navigation.navigate("podetaillist")}
-            >
-              <Image source={order} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="Po Detail"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-          </View>
-          <View
-            style={{
-              padding: 5,
-              display: "flex",
-              flexDirection: "row",
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginVertical: 10,
-            }}
-          >
-            <Card
-              style={styles.cardView}
-              onPress={(e) => props.navigation.navigate("mycustomerlist")}
-            >
-              <Image source={customer} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="My Customer"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-
-            <Card style={styles.cardView} onPress={(e) => props.navigation.navigate("ledgerlist")}>
-              <Image source={ledger} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="Ledger"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-          </View>
-          <View
-            style={{
-              padding: 5,
-              display: "flex",
-              flexDirection: "row",
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginVertical: 10,
-            }}
-          >
-            <Card style={styles.cardView} onPress={(e) => props.navigation.navigate("test")}>
-              <Image source={ledger} style={styles.cardViewImg}></Image>
-              <Card.Title
-                title="TEST"
-                style={{ paddingLeft: 0 }}
-                titleStyle={styles.cardViewTitle}
-              />
-            </Card>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={{ flex: 1, justifyContent: "space-evenly", paddingHorizontal: 5 }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" style={{ width: "95%" }}>
+          Cash Sale
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button
+          mode="contained"
+          compact={true}
+          color="red"
+          onPress={(e) => props.navigation.navigate("saleslist")}
+        >
+          Packing Slip
+        </Button>
+        <Button
+          mode="contained"
+          compact={true}
+          color="red"
+          onPress={(e) => props.navigation.navigate("kachabilllist")}
+        >
+          Kaccha Bill
+        </Button>
+        <Button
+          mode="contained"
+          compact={true}
+          color="red"
+          onPress={(e) => props.navigation.navigate("pakkabilllist")}
+        >
+          Pakka Bill
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button
+          mode="contained"
+          compact={true}
+          style={{ width: "95%" }}
+          color="red"
+          onPress={(e) => props.navigation.navigate("podetaillist")}
+        >
+          PO Details
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" compact={true} color="red" style={{ width: "45%" }}>
+          Receipt
+        </Button>
+        <Button mode="contained" compact={true} color="red" style={{ width: "45%" }}>
+          Invoice Purchased
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" compact={true} color="red">
+          Challan Invoice
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          Day Book
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          Shop GR
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" compact={true} color="red">
+          Bank
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          D/C Note
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          Gaddi Details
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" compact={true} color="red">
+          Kapda
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          Fabric Return
+        </Button>
+        <Button mode="contained" compact={true} color="red">
+          New Order
+        </Button>
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button mode="contained" compact={true} color="red">
+          Party Debit
+        </Button>
+        <Button
+          mode="contained"
+          compact={true}
+          color="red"
+          onPress={(e) => props.navigation.navigate("ledgerlist")}
+        >
+          Ledger
+        </Button>
+        <Button
+          mode="contained"
+          compact={true}
+          color="red"
+          onPress={(e) => props.navigation.navigate("mycustomerlist")}
+        >
+          My Customer
+        </Button>
+      </View>
+    </View>
   );
 
   const FourthRoute = () => (

@@ -6,6 +6,7 @@ import { postData } from "../../_Services/Api_Service";
 import Spinner from "react-native-loading-spinner-overlay";
 import font from "../../fonts.js";
 import { AuthContext } from "../../Components/Context";
+import ProductionHeader from "./ProductionHeader";
 
 export default function KajButton({ route, navigation }) {
   const { userId } = React.useContext(AuthContext);
@@ -157,52 +158,55 @@ export default function KajButton({ route, navigation }) {
     });
   }, []);
   return (
-    <View style={{ flex: 1 }}>
-      <Spinner
-        visible={isloading}
-        textContent={"Loading.."}
-        textStyle={styles.spinnerTextStyle}
-        size={"large"}
-        color={"#6200ee"}
-        animation={"fade"}
-        textStyle={{ color: "#6200ee" }}
-      />
-      <ScrollView horizontal={true}>
-        <View>
-          <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-            <Row
-              data={[
-                //"S No",
-                "Date",
-                "Party",
-                "Qty",
-                "Action",
-                "Process",
-                "Target Date",
-                "Lot No.",
-                "Hala",
-                "Size",
-                "Remarks",
-                "Created By",
-                "Created On",
-              ]}
-              style={styles.head}
-              textStyle={styles.text}
-              widthArr={widthArr}
-            />
-          </Table>
+    <>
+      <ProductionHeader index={5} navigation={navigation} />
+      <View style={{ flex: 1 }}>
+        <Spinner
+          visible={isloading}
+          textContent={"Loading.."}
+          textStyle={styles.spinnerTextStyle}
+          size={"large"}
+          color={"#6200ee"}
+          animation={"fade"}
+          textStyle={{ color: "#6200ee" }}
+        />
+        <ScrollView horizontal={true}>
+          <View>
+            <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+              <Row
+                data={[
+                  //"S No",
+                  "Date",
+                  "Party",
+                  "Qty",
+                  "Action",
+                  "Process",
+                  "Target Date",
+                  "Lot No.",
+                  "Hala",
+                  "Size",
+                  "Remarks",
+                  "Created By",
+                  "Created On",
+                ]}
+                style={styles.head}
+                textStyle={styles.text}
+                widthArr={widthArr}
+              />
+            </Table>
 
-          <FlatList
-            data={gridData}
-            getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            renderItem={RenderItem}
-            keyExtractor={(item) => item.tran_id}
-          />
-        </View>
-      </ScrollView>
-    </View>
+            <FlatList
+              data={gridData}
+              getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              renderItem={RenderItem}
+              keyExtractor={(item) => item.tran_id}
+            />
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 }
 

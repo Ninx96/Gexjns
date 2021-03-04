@@ -32,6 +32,14 @@ import DhagaCutting from "./Production/DhagaCutting";
 import Packaging from "./Production/Packaging";
 import ChallanInvoice from "./Production/ChallanInvoice";
 import IssueFactoryStore from "./Production/IssueFactoryStrore";
+import CuttingMaster from "./Production/CuttingMaster";
+import Godown from "./Production/Godown";
+import Assortment from "./Production/Assortment";
+import FactoryStore from "./Production/FactoryStore";
+import GandhiNagar from "./Production/GandhiNagar";
+import Shop from "./Production/Shop";
+import ProductionHeader from "./Production/ProductionHeader";
+import IssueGodown from "./Production/IssueGodown";
 
 function DashboardStack(prop) {
   const Stack = createStackNavigator();
@@ -218,9 +226,31 @@ function DashboardStack(prop) {
       {/* -------------------------------------------------------------- */}
       <Stack.Screen
         name="test"
-        component={ChallanInvoice}
+        component={Assortment}
         options={{
           headerTitle: "Test",
+        }}
+      />
+
+      <Stack.Screen
+        name="FabricStock"
+        component={FabricStock}
+        options={{
+          headerTitle: "FabricStock",
+        }}
+      />
+      <Stack.Screen
+        name="CuttingMaster"
+        component={CuttingMaster}
+        options={{
+          headerTitle: "CuttingMaster",
+        }}
+      />
+      <Stack.Screen
+        name="Godown"
+        component={Godown}
+        options={{
+          headerTitle: "Godown",
         }}
       />
       <Stack.Screen
@@ -228,13 +258,6 @@ function DashboardStack(prop) {
         component={Fabrication}
         options={{
           headerTitle: "Fabrication",
-        }}
-      />
-      <Stack.Screen
-        name="FabricStock"
-        component={FabricStock}
-        options={{
-          headerTitle: "FabricStock",
         }}
       />
       <Stack.Screen
@@ -266,6 +289,34 @@ function DashboardStack(prop) {
         }}
       />
       <Stack.Screen
+        name="Assortment"
+        component={Assortment}
+        options={{
+          headerTitle: "Assortment",
+        }}
+      />
+      <Stack.Screen
+        name="FactoryStore"
+        component={FactoryStore}
+        options={{
+          headerTitle: "FactoryStore",
+        }}
+      />
+      <Stack.Screen
+        name="GandhiNagar"
+        component={GandhiNagar}
+        options={{
+          headerTitle: "GandhiNagar",
+        }}
+      />
+      <Stack.Screen
+        name="Shop"
+        component={Shop}
+        options={{
+          headerTitle: "Shop",
+        }}
+      />
+      <Stack.Screen
         name="DailyWashing"
         component={DailyWashing}
         options={{
@@ -284,6 +335,13 @@ function DashboardStack(prop) {
         component={IssueFactoryStore}
         options={{
           headerTitle: "Issue Factory Store",
+        }}
+      />
+      <Stack.Screen
+        name="IssueGodown"
+        component={IssueGodown}
+        options={{
+          headerTitle: "Issue Godown",
         }}
       />
     </Stack.Navigator>

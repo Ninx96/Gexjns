@@ -6,6 +6,7 @@ import { postData } from "../../_Services/Api_Service";
 import Spinner from "react-native-loading-spinner-overlay";
 import font from "../../fonts.js";
 import { AuthContext } from "../../Components/Context";
+import ProductionHeader from "./ProductionHeader";
 
 export default function Packaging({ route, navigation }) {
   const { userId } = React.useContext(AuthContext);
@@ -34,16 +35,15 @@ export default function Packaging({ route, navigation }) {
           Action({
             tran_id: item.tran_id,
             process: item.process,
-            issue_to: item.issue_to,
-            issue_date: item.issue_date,
             lot_no: item.lot_no,
             qty: item.qty,
             issueto_id: item.issueto_id,
             size: item.size,
             remarks: item.remarks,
+            hala: item.hala,
             hide: item.hide,
           }),
-          item.image,
+          Img(item.image_path),
           item.rate,
           item.size,
           item.hala,
@@ -60,7 +60,7 @@ export default function Packaging({ route, navigation }) {
     </Table>
   );
 
-  const Image = (url) => {
+  const Img = (url) => {
     <Image
       source={{ uri: "https://musicstore.quickgst.in/Attachment_Img/ProductMasterImage/" + url }}
       style={{ height: 55, width: 100 }}
@@ -173,53 +173,56 @@ export default function Packaging({ route, navigation }) {
     });
   }, []);
   return (
-    <View style={{ flex: 1 }}>
-      <Spinner
-        visible={isloading}
-        textContent={"Loading.."}
-        textStyle={styles.spinnerTextStyle}
-        size={"large"}
-        color={"#6200ee"}
-        animation={"fade"}
-        textStyle={{ color: "#6200ee" }}
-      />
-      <ScrollView horizontal={true}>
-        <View>
-          <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-            <Row
-              data={[
-                //"S No",
-                "Date",
-                "Lot No.",
-                "Qty",
-                "Action",
-                "Image",
-                "Rate",
-                "Size",
-                "Hala",
-                "Process",
-                "Target Date",
-                "Remarks",
-                "Created By",
-                "Created On",
-              ]}
-              style={styles.head}
-              textStyle={styles.text}
-              widthArr={widthArr}
-            />
-          </Table>
+    <>
+      <ProductionHeader index={8} navigation={navigation} />
+      <View style={{ flex: 1 }}>
+        <Spinner
+          visible={isloading}
+          textContent={"Loading.."}
+          textStyle={styles.spinnerTextStyle}
+          size={"large"}
+          color={"#6200ee"}
+          animation={"fade"}
+          textStyle={{ color: "#6200ee" }}
+        />
+        <ScrollView horizontal={true}>
+          <View>
+            <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+              <Row
+                data={[
+                  //"S No",
+                  "Date",
+                  "Lot No.",
+                  "Qty",
+                  "Action",
+                  "Image",
+                  "Rate",
+                  "Size",
+                  "Hala",
+                  "Process",
+                  "Target Date",
+                  "Remarks",
+                  "Created By",
+                  "Created On",
+                ]}
+                style={styles.head}
+                textStyle={styles.text}
+                widthArr={widthArr}
+              />
+            </Table>
 
-          <FlatList
-            data={gridData}
-            getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            renderItem={RenderItem}
-            keyExtractor={(item) => item.tran_id}
-          />
-        </View>
-      </ScrollView>
-    </View>
+            <FlatList
+              data={gridData}
+              getItemLayout={(data, index) => ({ length: 55, offset: 55 * index, index })}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              renderItem={RenderItem}
+              keyExtractor={(item) => item.tran_id}
+            />
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 }
 
