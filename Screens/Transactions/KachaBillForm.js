@@ -32,6 +32,8 @@ import { Table, Row } from "react-native-table-component";
 import { postData } from "../../_Services/Api_Service";
 import { AuthContext } from "../../Components/Context";
 import DropDownPicker from "react-native-dropdown-picker";
+import { Picker } from "@react-native-picker/picker";
+
 import DatePicker from "react-native-datepicker";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
@@ -320,17 +322,18 @@ export default function KachaBillForm({ route, navigation }) {
   const Preview = () => {
     postData("Transaction/PreviewDC", param).then((resp) => {
       GetBrokerEmployee(resp.broker_id);
-      //console.log(resp);
+      //console.log(resp.broker_emp_id);
+
       setParam({
         ...param,
         tran_id: tran_id == undefined ? 0 : tran_id,
         date: resp.date,
         dc_no: resp.dc_no,
-        mycustomer_id: resp.mycustomer_id == "" ? null : resp.mycustomer_id,
+        mycustomer_id: resp.mycustomer_id,
         customer: resp.customer,
-        customer_id: resp.customer_id == "" ? null : resp.customer_id,
+        customer_id: resp.customer_id,
         type: resp.type,
-        state_id: resp.state_id == "" ? null : resp.state_id,
+        state_id: resp.state_id,
         state_code: resp.state_code,
         gstin: resp.gstin,
         po_id: resp.po_id,
@@ -338,9 +341,9 @@ export default function KachaBillForm({ route, navigation }) {
         po_date: resp.po_date,
         remarks: resp.remarks,
         inv_per: resp.inv_per,
-        company_id: resp.company_id == "" ? null : resp.company_id,
-        broker_id: resp.broker_id == "" ? null : resp.broker_id,
-        broker_emp_id: resp.broker_emp_id == "" ? null : resp.broker_emp_id,
+        company_id: resp.company_id,
+        broker_id: resp.broker_id,
+        broker_emp_id: resp.broker_emp_id,
         builty_no: resp.builty_no,
         transport: resp.transport,
         invoice_no: resp.invoice_no,
@@ -923,55 +926,82 @@ export default function KachaBillForm({ route, navigation }) {
                 ></TextInput>
               </TouchableRipple>
 
-              <DropDownPicker
-                items={companyList}
-                placeholder="Select Company"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "100%",
+                  backgroundColor: "white",
                 }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.company_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    company_id: item.value,
-                  });
+              >
+                <Picker
+                  selectedValue={param.company_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setParam({ ...param, company_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Select Company--" value="" />
+                  {companyList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "100%",
+                  backgroundColor: "white",
                 }}
-              />
-              <DropDownPicker
-                items={brokerList}
-                placeholder="Select Gaddi Name"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
+              >
+                <Picker
+                  selectedValue={param.broker_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    GetBrokerEmployee(itemValue);
+                    setParam({ ...param, broker_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Select Gaddi--" value="" />
+                  {brokerList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "100%",
+                  backgroundColor: "white",
                 }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.broker_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    broker_id: item.value,
-                  });
-                  GetBrokerEmployee(item.value);
-                }}
-              />
-              <DropDownPicker
-                items={brokerempList}
-                placeholder="Select Gaddi Employee"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
-                }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.broker_emp_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    broker_emp_id: item.value,
-                  });
-                }}
-              />
+              >
+                <Picker
+                  selectedValue={param.broker_emp_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setParam({ ...param, broker_emp_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Select Gaddi Emp--" value="" />
+                  {brokerempList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
               <TextInput
                 style={styles.input}
                 mode="outlined"
@@ -1024,22 +1054,31 @@ export default function KachaBillForm({ route, navigation }) {
                 }}
               ></TextInput>
 
-              <DropDownPicker
-                items={mycustomerList}
-                placeholder="Select My Customer"
-                style={{ backgroundColor: "#ffffff" }}
-                itemStyle={{
-                  justifyContent: "flex-start",
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "100%",
+                  backgroundColor: "white",
                 }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.mycustomer_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    mycustomer_id: item.value,
-                  });
-                }}
-              />
+              >
+                <Picker
+                  selectedValue={param.mycustomer_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setParam({ ...param, mycustomer_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Select My Customer--" value="" />
+                  {mycustomerList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
 
               <TextInput
                 style={styles.textArea}
