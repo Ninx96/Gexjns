@@ -528,7 +528,11 @@ function Dashboard(props) {
   const ThirdRoute = () => (
     <View style={{ flex: 1, justifyContent: "space-evenly", paddingHorizontal: 5 }}>
       <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-        <Button mode="contained" style={{ width: "95%" }}>
+        <Button
+          mode="contained"
+          style={{ width: "95%" }}
+          onPress={(e) => props.navigation.navigate("test")}
+        >
           Cash Sale
         </Button>
       </View>

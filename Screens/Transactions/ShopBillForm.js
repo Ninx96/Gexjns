@@ -41,8 +41,9 @@ import { FontAwesome, EvilIcons } from "@expo/vector-icons";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import SearchableDropdown from "react-native-searchable-dropdown";
 import { parse } from "react-native-svg";
+import { Picker } from "@react-native-picker/picker";
 
-export default function KachaBillForm({ route, navigation }) {
+export default function ShopBillForm({ route, navigation }) {
   const { tran_id } = route.params == undefined ? 0 : route.params;
   const { userId } = React.useContext(AuthContext);
   const [isloading, setloading] = React.useState(true);
@@ -223,15 +224,55 @@ export default function KachaBillForm({ route, navigation }) {
     }
   }, []);
 
-  const GetBrokerEmployee = (id) => {
-    param.state_id = id;
-    let _param = {
-      user_id: param.user_id,
-      broker_id: id,
-    };
-    postData("StockDropdown/GetBrokerEmployee", _param).then((resp) => {
-      setBrokerEmpList(resp);
-    });
+  const ImageUpload = async () => {
+    try {
+      const Camera = await Permissions.getAsync(Permissions.CAMERA);
+      const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
+
+      if (!Camera.granted) {
+        Permissions.askAsync(Permissions.CAMERA);
+      } else if (!camera_roll.granted) {
+        Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      } else {
+        const options = {
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.2,
+          base64: true,
+        };
+        Alert.alert("Select Upload Option", "Choose an Option To Continue", [
+          {
+            text: "Camera",
+            onPress: () => {
+              ImagePicker.launchCameraAsync(options).then((result) => {
+                if (!result.cancelled) {
+                  setParam({
+                    ...param,
+                    uri: { uri: result.uri },
+                    file_path: result.base64,
+                  });
+                }
+              });
+            },
+          },
+          {
+            text: "Gallery",
+            onPress: () => {
+              ImagePicker.launchImageLibraryAsync(options).then((result) => {
+                if (!result.cancelled) {
+                  setParam({
+                    ...param,
+                    uri: { uri: result.uri },
+                    file_path: result.base64,
+                  });
+                }
+              });
+            },
+          },
+        ]);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
   const SearchBarcode = () => {
@@ -319,60 +360,20 @@ export default function KachaBillForm({ route, navigation }) {
 
   const Preview = () => {
     postData("Transaction/PreviewDC", param).then((resp) => {
-      GetBrokerEmployee(resp.broker_id);
-      //console.log(resp);
       setParam({
         ...param,
-        tran_id: tran_id == undefined ? 0 : tran_id,
-        date: resp.date,
-        dc_no: resp.dc_no,
-        mycustomer_id: resp.mycustomer_id == "" ? null : resp.mycustomer_id,
-        customer: resp.customer,
-        customer_id: resp.customer_id == "" ? null : resp.customer_id,
-        type: resp.type,
-        state_id: resp.state_id == "" ? null : resp.state_id,
-        state_code: resp.state_code,
-        gstin: resp.gstin,
-        po_id: resp.po_id,
-        customer_po_no: resp.customer_po_no,
-        po_date: resp.po_date,
-        remarks: resp.remarks,
-        inv_per: resp.inv_per,
-        company_id: resp.company_id == "" ? null : resp.company_id,
-        broker_id: resp.broker_id == "" ? null : resp.broker_id,
-        broker_emp_id: resp.broker_emp_id == "" ? null : resp.broker_emp_id,
-        builty_no: resp.builty_no,
-        transport: resp.transport,
-        invoice_no: resp.invoice_no,
-        invoice_amt: resp.invoice_amt,
-        taxes: resp.taxes,
-        discount: resp.discount,
-        gaddi_comm: resp.gaddi_comm,
-        advance: resp.advance,
-        other_charges: resp.other_charges,
-        other_charges_less: resp.other_charges_less,
-        gaddi_name: resp.gaddi_name,
-        dis_per: resp.dis_per,
-        image_name: resp.file_path,
-        image_name1: resp.file_path1,
-        dcitem: resp.dcitem,
+        ...resp,
       });
       if (resp.attachment != "") {
         setImage1({
           uri: `https://musicstore.quickgst.in/Attachment_Img/DCImage/${resp.file_path}`,
         });
       }
-      if (resp.attachment1 != "") {
-        setImage2({
-          uri: `https://musicstore.quickgst.in/Attachment_Img/DCImageTwo/${resp.file_path}`,
-        });
-      }
+
       setloading(false);
     });
   };
-  let dimensions = Dimensions.get("window");
-  let imageWidth = Math.round((dimensions.width * 12) / 16);
-  let imageHeight = Math.round(imageWidth / 2);
+
   return (
     <View style={{ flex: 1 }}>
       <Spinner
@@ -725,82 +726,12 @@ export default function KachaBillForm({ route, navigation }) {
         </Dialog>
       </Portal>
 
-      {/* <Portal>
-                <Dialog
-                    visible={false}
-                    onDismiss={() => {
-                        setModal(false);
-                    }}
-                >
-                    <Dialog.Title>Pick Po</Dialog.Title>
-                    <Dialog.Content>
-                        
-                        <ScrollView horizontal={true}>
-                            <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
-                                <Row
-                                    data={[
-                                        "Sr No.",
-                                        "Party Name",
-                                        "PO Date",
-                                        "PO No.",
-                                        "Gaddi Name",
-                                        "Gaddi Employee",
-                                        "No. Of Partial",
-                                        "Details Item",
-                                        "Billing",
-                                        "Transport",
-                                        "Balance",
-                                        "Remarks",
-                                    ]}
-                                    style={styles.head}
-                                    textStyle={styles.text}
-                                    widthArr={widthArr}
-                                />
-                                {poGrid.map((item, index) => {
-                                    return (
-                                        <Row
-                                            key={index}
-                                            data={[
-                                                param.skip == 0 ? index + 1 : param.skip + index + 1,
-                                                item.party,
-                                                item.po_date,
-                                                item.po_no,
-                                                item.broker,
-                                                item.emp_name,
-                                                item.no_of_partial,
-                                                item.details_item,
-                                                item.billing,
-                                                item.transport,
-                                                item.balance_details,
-                                                item.Remarks,
-                                            ]}
-                                            style={styles.row}
-                                            textStyle={styles.text}
-                                            widthArr={widthArr}
-                                           
-                                        />
-                                    );
-                                })}
-                            </Table>
-                        </ScrollView>
-                        <DataTable>
-                            <DataTable.Pagination
-                                page={page}
-                                numberOfPages={poGrid.length < 10 ? page + 1 : page + 2}
-                                onPageChange={(page) => {
-                                    setPage(page);
-                                    param.skip = page * 10;
-                                    Refresh(param);
-                                }}
-                            />
-                        </DataTable>
-                    </Dialog.Content>
-                </Dialog>
-            </Portal> */}
       <SafeAreaView>
         <ScrollView>
-          <View style={{ padding: 20 }}>
-            <View>
+          <View style={{ marginVertical: 5 }}>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
               <Button
                 color="green"
                 mode="contained"
@@ -813,21 +744,12 @@ export default function KachaBillForm({ route, navigation }) {
               >
                 Pick PO
               </Button>
-              <Button
-                color="green"
-                mode="contained"
-                style={{ marginBottom: 10 }}
-                onPress={() => {
-                  modal.po = false;
-                  setModal({ ...modal, state: true });
-                  Refresh();
-                }}
-              >
-                Pick Sales
-              </Button>
-
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
               <DatePicker
-                style={{ width: "100%", marginTop: 4, marginBottom: 4 }}
+                style={{ width: "40%", marginTop: 10, marginBottom: 4 }}
                 date={param.date}
                 mode="date"
                 showIcon={false}
@@ -849,129 +771,93 @@ export default function KachaBillForm({ route, navigation }) {
                 }}
               />
 
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Slip No."}
-                value={param.dc_no}
-                disabled={true}
-                onChangeText={(text) => {
-                  setParam({
-                    ...param,
-                    dc_no: text,
-                  });
-                }}
-              ></TextInput>
-
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Customer PO No."}
-                value={param.customer_po_no}
-                onChangeText={(text) => {
-                  setParam({
-                    ...param,
-                    customer_po_no: text,
-                  });
-                }}
-              ></TextInput>
-              <DatePicker
-                style={{ width: "100%", marginTop: 4, marginBottom: 4 }}
-                date={param.po_date}
-                mode="date"
-                showIcon={false}
-                placeholder="Select PO Date"
-                format="DD/MM/YYYY"
-                onDateChange={(date) => {
-                  setParam({
-                    ...param,
-                    po_date: date,
-                  });
-                }}
-                customStyles={{
-                  dateInput: {
-                    borderRadius: 5,
-                    alignItems: "flex-start",
-                    height: 45,
-                    padding: 14,
-                  },
-                }}
-              />
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Invoice Per"}
-                value={param.inv_per}
-                onChangeText={(text) => {
-                  setParam({
-                    ...param,
-                    city: text,
-                  });
-                }}
-              ></TextInput>
               <TouchableRipple
+                style={{ width: "40%" }}
                 onPress={() => {
                   setModal({ ...modal, party: true });
                 }}
               >
                 <TextInput
-                  style={styles.input}
+                  style={{ height: 45, width: "100%" }}
                   mode="outlined"
                   label={"Party"}
                   value={param.customer}
                   editable={false}
                 ></TextInput>
               </TouchableRipple>
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Bill No."}
+                value={param.bill_no}
+                disabled={true}
+                onChangeText={(text) => {
+                  setParam({
+                    ...param,
+                    bill_no: text,
+                  });
+                }}
+              ></TextInput>
 
-              <DropDownPicker
-                items={companyList}
-                placeholder="Select Company"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "40%",
+                  backgroundColor: "white",
                 }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.company_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    company_id: item.value,
-                  });
+              >
+                <Picker
+                  selectedValue={param.company_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setParam({ ...param, company_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Option--" value="" />
+                  {companyList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "40%",
+                  backgroundColor: "white",
                 }}
-              />
-              <DropDownPicker
-                items={brokerList}
-                placeholder="Select Gaddi Name"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
-                }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.broker_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    broker_id: item.value,
-                  });
-                  GetBrokerEmployee(item.value);
-                }}
-              />
-              <DropDownPicker
-                items={brokerempList}
-                placeholder="Select Gaddi Employee"
-                style={styles.dropdown}
-                itemStyle={{
-                  justifyContent: "flex-start",
-                }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.broker_emp_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    broker_emp_id: item.value,
-                  });
-                }}
-              />
+              >
+                <Picker
+                  selectedValue={param.broker_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setParam({ ...param, broker_id: itemValue });
+                  }}
+                >
+                  <Picker.Item label="--Option--" value="" />
+                  {brokerList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
+
               <TextInput
                 style={styles.input}
                 mode="outlined"
@@ -984,7 +870,10 @@ export default function KachaBillForm({ route, navigation }) {
                   });
                 }}
               ></TextInput>
-
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
               <TextInput
                 style={styles.input}
                 mode="outlined"
@@ -1010,7 +899,10 @@ export default function KachaBillForm({ route, navigation }) {
                   });
                 }}
               ></TextInput>
-
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
               <TextInput
                 style={styles.input}
                 mode="outlined"
@@ -1023,24 +915,10 @@ export default function KachaBillForm({ route, navigation }) {
                   });
                 }}
               ></TextInput>
-
-              <DropDownPicker
-                items={mycustomerList}
-                placeholder="Select My Customer"
-                style={{ backgroundColor: "#ffffff" }}
-                itemStyle={{
-                  justifyContent: "flex-start",
-                }}
-                dropDownStyle={{ backgroundColor: "#ffffff" }}
-                defaultValue={param.mycustomer_id}
-                onChangeItem={(item) => {
-                  setParam({
-                    ...param,
-                    mycustomer_id: item.value,
-                  });
-                }}
-              />
-
+            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
               <TextInput
                 style={styles.textArea}
                 multiline={true}
@@ -1056,245 +934,177 @@ export default function KachaBillForm({ route, navigation }) {
                 }}
               ></TextInput>
             </View>
-            <View style={styles.container}>
-              <Text style={{ marginTop: 8 }}>Image 1</Text>
-              <TouchableRipple
-                onPress={async () => {
-                  try {
-                    const Camera = await Permissions.getAsync(Permissions.CAMERA);
-                    const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
-
-                    let result = { cancelled: true };
-
-                    if (!Camera.granted) {
-                      Permissions.askAsync(Permissions.CAMERA);
-                    } else if (!camera_roll.granted) {
-                      Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-                    } else {
-                      const options = {
-                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                        quality: 0.2,
-                        base64: true,
-                      };
-                      Alert.alert("Select Upload Option", "Choose an Option To Continue", [
-                        {
-                          text: "Camera",
-                          onPress: async () => {
-                            let result = await ImagePicker.launchCameraAsync(options).then(
-                              (result) => {
-                                if (!result.cancelled) {
-                                  setImage1({ uri: result.uri });
-                                  setParam({
-                                    ...param,
-                                    file_path: result.base64,
-                                  });
-                                }
-                              }
-                            );
-                          },
-                        },
-                        {
-                          text: "Gallery",
-                          onPress: async () => {
-                            await ImagePicker.launchImageLibraryAsync(options).then((result) => {
-                              if (!result.cancelled) {
-                                setImage1({ uri: result.uri });
-                                setParam({
-                                  ...param,
-                                  file_path: result.base64,
-                                });
-                              }
-                            });
-                          },
-                        },
-                      ]);
-                    }
-                  } catch (err) {
-                    console.warn(err);
-                  }
-                }}
-              >
-                <Image source={Image1} style={{ height: imageHeight, width: imageWidth }} />
-              </TouchableRipple>
-            </View>
-            <View style={styles.container}>
-              <Text style={{ marginTop: 8 }}>Image 2</Text>
-              <TouchableRipple
-                onPress={async () => {
-                  try {
-                    const Camera = await Permissions.getAsync(Permissions.CAMERA);
-                    const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
-
-                    let result = { cancelled: true };
-
-                    if (!Camera.granted) {
-                      Permissions.askAsync(Permissions.CAMERA);
-                    } else if (!camera_roll.granted) {
-                      Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-                    } else {
-                      const options = {
-                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                        quality: 0.2,
-                        base64: true,
-                      };
-                      Alert.alert("Select Upload Option", "Choose an Option To Continue", [
-                        {
-                          text: "Camera",
-                          onPress: async () => {
-                            let result = await ImagePicker.launchCameraAsync(options).then(
-                              (result) => {
-                                if (!result.cancelled) {
-                                  setImage2({ uri: result.uri });
-                                  setParam({
-                                    ...param,
-                                    file_path1: result.base64,
-                                  });
-                                }
-                              }
-                            );
-                          },
-                        },
-                        {
-                          text: "Gallery",
-                          onPress: async () => {
-                            await ImagePicker.launchImageLibraryAsync(options).then((result) => {
-                              if (!result.cancelled) {
-                                setImage2({ uri: result.uri });
-                                setParam({
-                                  ...param,
-                                  file_path1: result.base64,
-                                });
-                              }
-                            });
-                          },
-                        },
-                      ]);
-                    }
-                  } catch (err) {
-                    console.warn(err);
-                  }
-                }}
-              >
-                <Image source={Image2} style={{ height: imageHeight, width: imageWidth }} />
-              </TouchableRipple>
-            </View>
-
-            <View>
-              <Headline style={{ alignSelf: "center", marginBottom: 6 }}>Item Details</Headline>
-              <View
-                style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}
-              >
-                <TextInput
-                  style={{ height: 45, marginTop: 4, marginBottom: 4, flex: 8 }}
-                  mode="outlined"
-                  label={"Barcode"}
-                  value={param.barcode}
-                  onChangeText={(text) => {
-                    setParam({
-                      ...param,
-                      barcode: text,
-                    });
-                  }}
-                  right={
-                    <TextInput.Icon
-                      onPressIn={() => {
-                        setModal({ ...modal, qr: true, scanned: false });
-                      }}
-                      forceTextInputFocus={false}
-                      name="barcode-scan"
-                      style={{ top: 5 }}
-                    />
-                  }
-                ></TextInput>
-
-                <EvilIcons
-                  name="arrow-right"
-                  size={40}
-                  color="#6200ee"
-                  onPress={() => {
-                    SearchBarcode();
-                  }}
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+            >
+              <View style={{ width: "40%" }}>
+                <Image
+                  source={param.uri}
+                  style={{ width: "100%", height: 150, borderRadius: 10 }}
                 />
+                <Button mode="contained" compact={true} onPress={ImageUpload} color="green">
+                  Browse
+                </Button>
+                <Button
+                  mode="contained"
+                  color="red"
+                  onPress={() => {
+                    setParam({ ...param, uri: require("../../assets/upload.png"), file_path: "" });
+                  }}
+                >
+                  Clear
+                </Button>
               </View>
-              {/* <Button
-                color="green"
-                mode="contained"
-                onPress={() => {
-                  SearchBarcode();
-                }}
-              >
-                Scan
-              </Button> */}
-              <ScrollView horizontal={true}>
-                <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
-                  <Row
-                    data={[
-                      "#",
-                      "Barcode",
-                      "Qty",
-                      "Rate",
-                      "Comments",
-                      "Type",
-                      "Size",
-                      "Color",
-                      "Amount",
-                      "Total",
-                      "Action",
-                    ]}
-                    style={styles.head}
-                    textStyle={styles.text}
-                    widthArr={[40, 80, 50, 100, 200, 70, 50, 120, 100, 100, 70]}
-                  />
-                  {param.dcitem.map((item, index) => {
-                    Tqty = parseFloat(Tqty) + (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
-                    Tamt =
-                      parseFloat(Tamt) + (isNaN(parseInt(item.amount)) ? 0 : parseInt(item.amount));
-                    param.total_qty = Tqty;
-                    param.total_amt = Tamt;
-                    //console.log(item);
-                    // setParam({ ...param, total_qty: Tqty, total_amt: Tamt });
-
-                    return (
-                      <Row
-                        key={index}
-                        data={[
-                          index + 1,
-                          item.barcode,
-                          item.qty,
-                          item.rate,
-                          item.comments,
-                          item.type,
-                          item.size,
-                          item.color,
-                          item.amount,
-                          item.total,
-                          Action(index, item),
-                        ]}
-                        style={styles.row}
-                        textStyle={styles.text}
-                        widthArr={[40, 80, 50, 100, 200, 70, 50, 120, 100, 100, 70]}
+            </View>
+          </View>
+          <View style={{ marginVertical: 5 }}>
+            <Headline style={{ alignSelf: "center" }}>Item Details</Headline>
+            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+              <View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-evenly",
+                    marginVertical: 10,
+                  }}
+                >
+                  <TextInput
+                    style={{ height: 45, width: "80%" }}
+                    mode="outlined"
+                    label={"Barcode"}
+                    value={param.barcode}
+                    onChangeText={(text) => {
+                      setParam({
+                        ...param,
+                        barcode: text,
+                      });
+                    }}
+                    right={
+                      <TextInput.Icon
+                        onPressIn={() => {
+                          setModal({ ...modal, qr: true, scanned: false });
+                        }}
+                        forceTextInputFocus={false}
+                        name="barcode-scan"
+                        style={{ top: 5 }}
                       />
-                    );
-                  })}
-                </Table>
-              </ScrollView>
+                    }
+                  ></TextInput>
+
+                  <EvilIcons
+                    name="arrow-right"
+                    size={60}
+                    style={{ alignSelf: "center" }}
+                    color="#6200ee"
+                    onPress={() => {
+                      SearchBarcode();
+                    }}
+                  />
+                </View>
+
+                <ScrollView horizontal={true}>
+                  <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
+                    <Row
+                      data={["#", "Barcode", "Qty", "Rate", "Amount", "Action"]}
+                      style={styles.head}
+                      textStyle={styles.text}
+                      widthArr={[40, 80, 50, 80, 80, 80]}
+                    />
+                    {param.dcitem.map((item, index) => {
+                      Tqty =
+                        parseFloat(Tqty) + (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
+                      Tamt =
+                        parseFloat(Tamt) +
+                        (isNaN(parseInt(item.amount)) ? 0 : parseInt(item.amount));
+                      param.total_qty = Tqty;
+                      param.total_amt = Tamt;
+                      //console.log(item);
+                      // setParam({ ...param, total_qty: Tqty, total_amt: Tamt });
+
+                      return (
+                        <Row
+                          key={index}
+                          data={[
+                            index + 1,
+                            item.barcode,
+                            item.qty,
+                            item.rate,
+
+                            item.amount,
+
+                            Action(index, item),
+                          ]}
+                          style={styles.row}
+                          textStyle={styles.text}
+                          widthArr={[40, 80, 50, 80, 80, 80]}
+                        />
+                      );
+                    })}
+                  </Table>
+                </ScrollView>
+              </View>
             </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+            {/* <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
               <Text style={{ alignSelf: "center", marginBottom: 6 }}>
                 Total Qty : {param.total_qty}
               </Text>
               <Text style={{ alignSelf: "center", marginBottom: 6 }}>
                 Total Amt : {param.total_amt}
               </Text>
-            </View>
+            </View> */}
+          </View>
 
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <View style={{ flex: 1 }}>
+          <View style={{ marginVertical: 5, paddingHorizontal: 10 }}>
+            <Row style={styles.row} data={["Total Qty :", param.total_qty]} />
+            <Row style={styles.row} data={["Total Amount :", param.total_amt]} />
+            <Row
+              style={styles.row}
+              data={[
+                "Discount :",
                 <TextInput
-                  style={styles.input}
-                  mode="outlined"
+                  label={"Extra Discount"}
+                  style={{ marginHorizontal: 2 }}
+                  keyboardType="numeric"
+                  value={param.discount}
+                  onChangeText={(text) => {
+                    param.discount = text;
+                    calcParams();
+                    setParam({
+                      ...param,
+                      discount: text,
+                    });
+                  }}
+                />,
+              ]}
+            />
+            <Row
+              style={styles.row}
+              data={[
+                "Fair :",
+                <TextInput
+                  label={"Fair"}
+                  style={{ marginHorizontal: 2 }}
+                  keyboardType="numeric"
+                  value={param.fair}
+                  onChangeText={(text) => {
+                    param.fair = text;
+                    calcParams();
+                    setParam({
+                      ...param,
+                      fair: text,
+                    });
+                  }}
+                />,
+              ]}
+            />
+            <Row
+              style={styles.row}
+              data={[
+                "Tax :",
+                <TextInput
                   label={"Taxes"}
+                  style={{ marginHorizontal: 2 }}
                   value={param.taxes}
                   keyboardType="numeric"
                   onChangeText={(text) => {
@@ -1306,13 +1116,37 @@ export default function KachaBillForm({ route, navigation }) {
                       taxes: text,
                     });
                   }}
-                ></TextInput>
-              </View>
-              <View style={{ flex: 1 }}>
+                />,
+              ]}
+            />
+            <Row
+              style={styles.row}
+              data={[
+                "Builty Charge :",
                 <TextInput
-                  style={styles.input}
-                  mode="outlined"
+                  label={"Builty Charge"}
+                  style={{ marginHorizontal: 2 }}
+                  keyboardType="numeric"
+                  value={param.discount}
+                  onChangeText={(builty_charge) => {
+                    param.builty_charge = text;
+                    calcParams();
+                    setParam({
+                      ...param,
+                      builty_charge: text,
+                    });
+                  }}
+                />,
+              ]}
+            />
+            <Row style={styles.row} data={["", param.total_amt]} />
+            <Row
+              style={styles.row}
+              data={[
+                "Advance Receive :",
+                <TextInput
                   label={"Paid"}
+                  style={{ marginHorizontal: 2 }}
                   keyboardType="numeric"
                   value={param.advance}
                   onChangeText={(text) => {
@@ -1323,119 +1157,158 @@ export default function KachaBillForm({ route, navigation }) {
                       advance: text,
                     });
                   }}
-                ></TextInput>
-              </View>
+                />,
+              ]}
+            />
+            <Row style={styles.row} data={["Grand Total :", param.Gtotal_amt]} />
+          </View>
+
+          {/* <View style={{ flex: 1, flexDirection: "row" }}>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Taxes"}
+                value={param.taxes}
+                keyboardType="numeric"
+                onChangeText={(text) => {
+                  param.taxes = text;
+                  calcParams();
+
+                  setParam({
+                    ...param,
+                    taxes: text,
+                  });
+                }}
+              ></TextInput>
             </View>
-
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Discount(%)"}
-                  keyboardType="numeric"
-                  value={param.dis_per}
-                  onChangeText={(text) => {
-                    param.dis_per = text;
-                    calcParams();
-
-                    setParam({
-                      ...param,
-                      dis_Per: text,
-                    });
-                  }}
-                ></TextInput>
-              </View>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Extra Discount"}
-                  keyboardType="numeric"
-                  value={param.discount}
-                  onChangeText={(text) => {
-                    param.discount = text;
-                    calcParams();
-                    setParam({
-                      ...param,
-                      discount: text,
-                    });
-                  }}
-                ></TextInput>
-              </View>
-            </View>
-
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Gaddi Comm."}
-                  keyboardType="numeric"
-                  value={param.gaddi_comm}
-                  onChangeText={(text) => {
-                    param.gaddi_comm = text;
-                    calcParams();
-
-                    setParam({
-                      ...param,
-                      gaddi_comm: text,
-                    });
-                  }}
-                ></TextInput>
-              </View>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Other"}
-                  keyboardType="numeric"
-                  value={param.other_charges}
-                  onChangeText={(text) => {
-                    param.other_charges = text;
-                    calcParams();
-
-                    setParam({
-                      ...param,
-                      other_charges: text,
-                    });
-                  }}
-                ></TextInput>
-              </View>
-            </View>
-
-            <View style={{ flex: 1, flexDirection: "row" }}>
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Other Less"}
-                  keyboardType="numeric"
-                  value={param.other_charges_less}
-                  onChangeText={(text) => {
-                    param.other_charges_less = text;
-                    calcParams();
-
-                    setParam({
-                      ...param,
-                      other_charges_less: text,
-                    });
-                  }}
-                ></TextInput>
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label={"Grand Total"}
-                  keyboardType="numeric"
-                  value={param.Gtotal_amt}
-                  disabled
-                ></TextInput>
-              </View>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Paid"}
+                keyboardType="numeric"
+                value={param.advance}
+                onChangeText={(text) => {
+                  param.advance = text;
+                  calcParams();
+                  setParam({
+                    ...param,
+                    advance: text,
+                  });
+                }}
+              ></TextInput>
             </View>
           </View>
+
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Discount(%)"}
+                keyboardType="numeric"
+                value={param.dis_per}
+                onChangeText={(text) => {
+                  param.dis_per = text;
+                  calcParams();
+
+                  setParam({
+                    ...param,
+                    dis_Per: text,
+                  });
+                }}
+              ></TextInput>
+            </View>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Extra Discount"}
+                keyboardType="numeric"
+                value={param.discount}
+                onChangeText={(text) => {
+                  param.discount = text;
+                  calcParams();
+                  setParam({
+                    ...param,
+                    discount: text,
+                  });
+                }}
+              ></TextInput>
+            </View>
+          </View>
+
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Gaddi Comm."}
+                keyboardType="numeric"
+                value={param.gaddi_comm}
+                onChangeText={(text) => {
+                  param.gaddi_comm = text;
+                  calcParams();
+
+                  setParam({
+                    ...param,
+                    gaddi_comm: text,
+                  });
+                }}
+              ></TextInput>
+            </View>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Other"}
+                keyboardType="numeric"
+                value={param.other_charges}
+                onChangeText={(text) => {
+                  param.other_charges = text;
+                  calcParams();
+
+                  setParam({
+                    ...param,
+                    other_charges: text,
+                  });
+                }}
+              ></TextInput>
+            </View>
+          </View>
+
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Other Less"}
+                keyboardType="numeric"
+                value={param.other_charges_less}
+                onChangeText={(text) => {
+                  param.other_charges_less = text;
+                  calcParams();
+
+                  setParam({
+                    ...param,
+                    other_charges_less: text,
+                  });
+                }}
+              ></TextInput>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label={"Grand Total"}
+                keyboardType="numeric"
+                value={param.Gtotal_amt}
+                disabled
+              ></TextInput>
+            </View>
+          </View> */}
         </ScrollView>
       </SafeAreaView>
       <FAB
@@ -1477,12 +1350,11 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 45,
-    marginTop: 4,
-    marginBottom: 4,
+    width: "40%",
   },
   textArea: {
-    marginTop: 4,
-    marginBottom: 4,
+    width: "85%",
+    height: 100,
   },
   fabLeft: {
     position: "absolute",

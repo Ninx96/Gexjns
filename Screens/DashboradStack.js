@@ -40,6 +40,7 @@ import GandhiNagar from "./Production/GandhiNagar";
 import Shop from "./Production/Shop";
 import ProductionHeader from "./Production/ProductionHeader";
 import IssueGodown from "./Production/IssueGodown";
+import ShopBillForm from "./Transactions/ShopBillForm";
 
 function DashboardStack(prop) {
   const Stack = createStackNavigator();
@@ -226,7 +227,7 @@ function DashboardStack(prop) {
       {/* -------------------------------------------------------------- */}
       <Stack.Screen
         name="test"
-        component={Assortment}
+        component={ShopBillForm}
         options={{
           headerTitle: "Test",
         }}
