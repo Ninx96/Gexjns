@@ -1492,7 +1492,7 @@ export default function KachaBillForm({ route, navigation }) {
                 Alert.alert("Form Save Succeessfully!!");
                 navigation.navigate("kachabilllist");
               } else {
-                Alert.alert(data.msg);
+                Alert.alert("Error", data.msg);
                 //console.log(data.msg);
               }
             });

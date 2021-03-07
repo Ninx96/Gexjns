@@ -41,6 +41,7 @@ import Shop from "./Production/Shop";
 import ProductionHeader from "./Production/ProductionHeader";
 import IssueGodown from "./Production/IssueGodown";
 import ShopBillForm from "./Transactions/ShopBillForm";
+import ShopBillList from "./Transactions/ShopBillList";
 
 function DashboardStack(prop) {
   const Stack = createStackNavigator();
@@ -64,6 +65,22 @@ function DashboardStack(prop) {
       />
 
       {/* ---------------------Transactions--------------------- */}
+
+      <Stack.Screen
+        name="ShopBillForm"
+        component={ShopBillForm}
+        options={{
+          headerTitle: "Cash Sales",
+        }}
+      />
+
+      <Stack.Screen
+        name="ShopBillList"
+        component={ShopBillList}
+        options={{
+          headerTitle: "Cash Sales",
+        }}
+      />
 
       <Stack.Screen
         name="saleslist"
@@ -225,13 +242,6 @@ function DashboardStack(prop) {
       />
 
       {/* -------------------------------------------------------------- */}
-      <Stack.Screen
-        name="test"
-        component={ShopBillForm}
-        options={{
-          headerTitle: "Test",
-        }}
-      />
 
       <Stack.Screen
         name="FabricStock"

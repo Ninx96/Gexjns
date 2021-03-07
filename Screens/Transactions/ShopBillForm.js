@@ -42,6 +42,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import SearchableDropdown from "react-native-searchable-dropdown";
 import { parse } from "react-native-svg";
 import { Picker } from "@react-native-picker/picker";
+import moment from "moment";
 
 export default function ShopBillForm({ route, navigation }) {
   const { tran_id } = route.params == undefined ? 0 : route.params;
@@ -52,6 +53,7 @@ export default function ShopBillForm({ route, navigation }) {
   const [companyList, setCompanyList] = React.useState([]);
   const [mycustomerList, setMyCustomerList] = React.useState([]);
   const [partyList, setPartyList] = React.useState([]);
+
   const [modal, setModal] = React.useState({
     po: true,
     item: false,
@@ -64,10 +66,9 @@ export default function ShopBillForm({ route, navigation }) {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [poGrid, setPoGrid] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [Image1, setImage1] = React.useState(require("../../assets/upload.png"));
-  const [Image2, setImage2] = React.useState(require("../../assets/upload.png"));
+
   const [dcItem, setItem] = React.useState({
-    ps_tran_id: "",
+    sb_tran_id: "",
     barcode: "",
     comments: "",
     type: "",
@@ -93,8 +94,8 @@ export default function ShopBillForm({ route, navigation }) {
     skip: "",
 
     tran_id: tran_id == undefined ? 0 : tran_id,
-    date: "",
-    dc_no: "",
+    date: moment().format("DD/MM/YYYY"),
+    packing_slip_no: "",
     customer_po_no: "",
     po_date: "",
     inv_per: "",
@@ -117,8 +118,10 @@ export default function ShopBillForm({ route, navigation }) {
     remarks: "",
     attachment: "",
     attachment1: "",
-    image_name: "",
-    image_name1: "",
+    file_path: "",
+    uri: require("../../assets/upload.png"),
+    file_path1: "",
+    uri1: require("../../assets/upload.png"),
     taxes: "",
     discount: "",
     gaddi_comm: "",
@@ -161,7 +164,7 @@ export default function ShopBillForm({ route, navigation }) {
   const calcParams = () => {
     var temp =
       (isNaN(parseInt(param.total_amt)) ? 0 : parseInt(param.total_amt)) +
-      (isNaN(parseInt(param.taxes)) ? 0 : parseInt(param.taxes)) +
+      (isNaN(parseInt(param.taxes)) ? 0 : parseInt(param.taxes)) -
       (isNaN(parseInt(param.advance)) ? 0 : parseInt(param.advance)) -
       ((isNaN(parseInt(param.dis_per)) ? 0 : parseInt(param.dis_per)) *
         (isNaN(parseInt(param.total_amt)) ? 0 : parseInt(param.total_amt))) /
@@ -170,7 +173,7 @@ export default function ShopBillForm({ route, navigation }) {
       (isNaN(parseInt(param.gaddi_comm)) ? 0 : parseInt(param.gaddi_comm)) +
       (isNaN(parseInt(param.other_charges)) ? 0 : parseInt(param.other_charges)) -
       (isNaN(parseInt(param.other_charges_less)) ? 0 : parseInt(param.other_charges_less));
-    //console.log("1-" + temp);
+
     param.Gtotal_amt = temp.toString();
   };
 
@@ -186,13 +189,6 @@ export default function ShopBillForm({ route, navigation }) {
   };
 
   React.useEffect(() => {
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, "0");
-    var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-    var yyyy = today.getFullYear();
-    today = dd + "/" + mm + "/" + yyyy;
-    param.date = today;
-
     userId().then((data) => {
       param.user_id = data;
     });
@@ -207,9 +203,6 @@ export default function ShopBillForm({ route, navigation }) {
     postData("StockDropdown/GetCompanyListDC", "").then((resp) => {
       setCompanyList(resp);
     });
-    postData("StockDropdown/SelectMyCustomer", "").then((resp) => {
-      setMyCustomerList(resp);
-    });
     postData("StockDropdown/SelectPartyName", { search: "" }).then((resp) => {
       setPartyList(resp);
     });
@@ -217,8 +210,8 @@ export default function ShopBillForm({ route, navigation }) {
     if (tran_id != undefined) {
       Preview();
     } else {
-      postData("Transaction/EntryNoInDC", "").then((resp) => {
-        setParam({ ...param, dc_no: resp.dc_no });
+      postData("Transaction/EntryNoInShopBill", "").then((resp) => {
+        setParam({ ...param, packing_slip_no: resp.entry_no });
         setloading(false);
       });
     }
@@ -275,13 +268,64 @@ export default function ShopBillForm({ route, navigation }) {
     }
   };
 
+  const Image2Upload = async () => {
+    try {
+      const Camera = await Permissions.getAsync(Permissions.CAMERA);
+      const camera_roll = await Permissions.getAsync(Permissions.MEDIA_LIBRARY);
+
+      if (!Camera.granted) {
+        Permissions.askAsync(Permissions.CAMERA);
+      } else if (!camera_roll.granted) {
+        Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      } else {
+        const options = {
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.2,
+          base64: true,
+        };
+        Alert.alert("Select Upload Option", "Choose an Option To Continue", [
+          {
+            text: "Camera",
+            onPress: () => {
+              ImagePicker.launchCameraAsync(options).then((result) => {
+                if (!result.cancelled) {
+                  setParam({
+                    ...param,
+                    uri1: { uri: result.uri },
+                    file_path1: result.base64,
+                  });
+                }
+              });
+            },
+          },
+          {
+            text: "Gallery",
+            onPress: () => {
+              ImagePicker.launchImageLibraryAsync(options).then((result) => {
+                if (!result.cancelled) {
+                  setParam({
+                    ...param,
+                    uri1: { uri: result.uri },
+                    file_path1: result.base64,
+                  });
+                }
+              });
+            },
+          },
+        ]);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   const SearchBarcode = () => {
     setloading(true);
     if (param.barcode != "") {
       let _param = {
         barcode: param.barcode,
       };
-      postData("Transaction/SelectItemInDC", _param).then((resp) => {
+      postData("Transaction/SelectItemInShopBill", _param).then((resp) => {
         //console.log(resp);
         resp.map((item, key) => {
           var isAppend = true;
@@ -301,7 +345,7 @@ export default function ShopBillForm({ route, navigation }) {
 
           if (isAppend) {
             param.dcitem.push({
-              ps_tran_id: item.tran_id,
+              sb_tran_id: item.tran_id,
               barcode: item.barcode,
               comments: item.comments,
               type: item.type,
@@ -324,7 +368,7 @@ export default function ShopBillForm({ route, navigation }) {
         });
         param.barcode = "";
         setParam({ ...param, dcitem: param.dcitem });
-        //CalTotal();
+
         setloading(false);
       });
     }
@@ -359,16 +403,18 @@ export default function ShopBillForm({ route, navigation }) {
   };
 
   const Preview = () => {
-    postData("Transaction/PreviewDC", param).then((resp) => {
+    postData("Transaction/PreviewShopBill", param).then((resp) => {
+      //console.log(resp);
+      if (resp.file_path) {
+        param.uri = `https://musicstore.quickgst.in/Attachment_Img/DCImage/${resp.file_path}`;
+      }
+      if (resp.file_path1) {
+        param.uri1 = `https://musicstore.quickgst.in/Attachment_Img/DCImage/${resp.file_path1}`;
+      }
       setParam({
         ...param,
         ...resp,
       });
-      if (resp.attachment != "") {
-        setImage1({
-          uri: `https://musicstore.quickgst.in/Attachment_Img/DCImage/${resp.file_path}`,
-        });
-      }
 
       setloading(false);
     });
@@ -386,14 +432,7 @@ export default function ShopBillForm({ route, navigation }) {
         textStyle={{ color: "#6200ee" }}
       />
       <Portal>
-        <Dialog
-          visible={modal.state}
-          style={{ height: "95%" }}
-          // onDismiss={() => {
-          //   setModal({ ...modal, state: false });
-          // }}
-          dismissable={true}
-        >
+        <Dialog visible={modal.state} style={{ height: "95%" }} dismissable={true}>
           <Dialog.Title>{modal.po ? "Choose PO" : "Choose Sales"}</Dialog.Title>
           <Dialog.Content>
             <Searchbar
@@ -420,13 +459,10 @@ export default function ShopBillForm({ route, navigation }) {
                       key={index}
                       onPress={() => {
                         setloading(true);
-                        GetBrokerEmployee(po.broker_id);
 
                         postData("Transaction/PickPackingSaleItemInDC", {
                           tran_id: modal.po ? 0 : po.tran_id,
                         }).then((resp) => {
-                          //param.dcitem = resp;
-
                           resp.map((item, key) => {
                             var isAppend = true;
                             let total_qty = 0;
@@ -528,43 +564,6 @@ export default function ShopBillForm({ route, navigation }) {
           <Dialog.Title>Item Details</Dialog.Title>
           <Dialog.Content>
             <ScrollView>
-              {/* <TextInput
-                style={styles.input}
-                mode="outlined"
-                label="Qty"
-                value={dcItem.qty}
-                onChangeText={(text) => {
-                  let total_qty = text;
-                  var pre_qty = 0;
-
-                  param.dcitem.map((item, key) => {
-                    if (dcItem.ps_tran_id == item.ps_tran_id) {
-                      pre_qty = parseFloat(pre_qty) + parseFloat(item.qty);
-                      total_qty = parseFloat(total_qty) + parseFloat(item.qty);
-                    }
-                  });
-
-                  if (parseFloat(dcItem.lot_qty) >= total_qty) {
-                    //console.log("1");
-                    setItem({
-                      ...dcItem,
-                      qty: text,
-                    });
-                  } else {
-                    var qty = (parseFloat(dcItem.lot_qty) - parseFloat(pre_qty)).toString();
-                    //console.log("2");
-                    setItem({
-                      ...dcItem,
-                      qty: qty,
-                    });
-                  }
-
-                  // setItem({
-                  //   ...dcItem,
-                  // //  qty: dcItem.qty
-                  // });
-                }}
-              ></TextInput> */}
               <TextInput
                 style={styles.input}
                 mode="outlined"
@@ -793,12 +792,12 @@ export default function ShopBillForm({ route, navigation }) {
                 style={styles.input}
                 mode="outlined"
                 label={"Bill No."}
-                value={param.bill_no}
+                value={param.packing_slip_no}
                 disabled={true}
                 onChangeText={(text) => {
                   setParam({
                     ...param,
-                    bill_no: text,
+                    packing_slip_no: text,
                   });
                 }}
               ></TextInput>
@@ -955,6 +954,28 @@ export default function ShopBillForm({ route, navigation }) {
                   Clear
                 </Button>
               </View>
+              <View style={{ width: "40%" }}>
+                <Image
+                  source={param.uri1}
+                  style={{ width: "100%", height: 150, borderRadius: 10 }}
+                />
+                <Button mode="contained" compact={true} onPress={Image2Upload} color="green">
+                  Browse
+                </Button>
+                <Button
+                  mode="contained"
+                  color="red"
+                  onPress={() => {
+                    setParam({
+                      ...param,
+                      uri1: require("../../assets/upload.png"),
+                      file_path1: "",
+                    });
+                  }}
+                >
+                  Clear
+                </Button>
+              </View>
             </View>
           </View>
           <View style={{ marginVertical: 5 }}>
@@ -1086,13 +1107,13 @@ export default function ShopBillForm({ route, navigation }) {
                   label={"Fair"}
                   style={{ marginHorizontal: 2 }}
                   keyboardType="numeric"
-                  value={param.fair}
+                  value={param.other_charges_less}
                   onChangeText={(text) => {
-                    param.fair = text;
+                    param.other_charges_less = text;
                     calcParams();
                     setParam({
                       ...param,
-                      fair: text,
+                      other_charges_less: text,
                     });
                   }}
                 />,
@@ -1127,19 +1148,19 @@ export default function ShopBillForm({ route, navigation }) {
                   label={"Builty Charge"}
                   style={{ marginHorizontal: 2 }}
                   keyboardType="numeric"
-                  value={param.discount}
-                  onChangeText={(builty_charge) => {
-                    param.builty_charge = text;
+                  value={param.other_charges}
+                  onChangeText={(text) => {
+                    param.other_charges = text;
                     calcParams();
                     setParam({
                       ...param,
-                      builty_charge: text,
+                      other_charges: text,
                     });
                   }}
                 />,
               ]}
             />
-            <Row style={styles.row} data={["", param.total_amt]} />
+            <Row style={styles.row} data={["", ""]} />
             <Row
               style={styles.row}
               data={[
@@ -1162,153 +1183,7 @@ export default function ShopBillForm({ route, navigation }) {
             />
             <Row style={styles.row} data={["Grand Total :", param.Gtotal_amt]} />
           </View>
-
-          {/* <View style={{ flex: 1, flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Taxes"}
-                value={param.taxes}
-                keyboardType="numeric"
-                onChangeText={(text) => {
-                  param.taxes = text;
-                  calcParams();
-
-                  setParam({
-                    ...param,
-                    taxes: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Paid"}
-                keyboardType="numeric"
-                value={param.advance}
-                onChangeText={(text) => {
-                  param.advance = text;
-                  calcParams();
-                  setParam({
-                    ...param,
-                    advance: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-          </View>
-
-          <View style={{ flex: 1, flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Discount(%)"}
-                keyboardType="numeric"
-                value={param.dis_per}
-                onChangeText={(text) => {
-                  param.dis_per = text;
-                  calcParams();
-
-                  setParam({
-                    ...param,
-                    dis_Per: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Extra Discount"}
-                keyboardType="numeric"
-                value={param.discount}
-                onChangeText={(text) => {
-                  param.discount = text;
-                  calcParams();
-                  setParam({
-                    ...param,
-                    discount: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-          </View>
-
-          <View style={{ flex: 1, flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Gaddi Comm."}
-                keyboardType="numeric"
-                value={param.gaddi_comm}
-                onChangeText={(text) => {
-                  param.gaddi_comm = text;
-                  calcParams();
-
-                  setParam({
-                    ...param,
-                    gaddi_comm: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Other"}
-                keyboardType="numeric"
-                value={param.other_charges}
-                onChangeText={(text) => {
-                  param.other_charges = text;
-                  calcParams();
-
-                  setParam({
-                    ...param,
-                    other_charges: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-          </View>
-
-          <View style={{ flex: 1, flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Other Less"}
-                keyboardType="numeric"
-                value={param.other_charges_less}
-                onChangeText={(text) => {
-                  param.other_charges_less = text;
-                  calcParams();
-
-                  setParam({
-                    ...param,
-                    other_charges_less: text,
-                  });
-                }}
-              ></TextInput>
-            </View>
-
-            <View style={{ flex: 1 }}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label={"Grand Total"}
-                keyboardType="numeric"
-                value={param.Gtotal_amt}
-                disabled
-              ></TextInput>
-            </View>
-          </View> */}
+          <View style={{ height: 80 }}></View>
         </ScrollView>
       </SafeAreaView>
       <FAB
@@ -1319,15 +1194,14 @@ export default function ShopBillForm({ route, navigation }) {
             alert("Please Fill Company Name");
           } else {
             setloading(true);
-            //console.log(param);
-            postData("Transaction/InsertDC", param).then((data) => {
+
+            postData("Transaction/InsertShopBill", param).then((data) => {
               setloading(false);
               if (data.valid) {
                 Alert.alert("Form Save Succeessfully!!");
-                navigation.navigate("kachabilllist");
+                navigation.goBack();
               } else {
-                Alert.alert(data.msg);
-                //console.log(data.msg);
+                Alert.alert("Error", data.msg);
               }
             });
           }
@@ -1337,7 +1211,7 @@ export default function ShopBillForm({ route, navigation }) {
         style={styles.fabLeft}
         icon="close"
         onPress={() => {
-          navigation.navigate("kachabilllist");
+          navigation.goBack();
         }}
       />
     </View>

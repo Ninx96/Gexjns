@@ -531,7 +531,7 @@ function Dashboard(props) {
         <Button
           mode="contained"
           style={{ width: "95%" }}
-          onPress={(e) => props.navigation.navigate("test")}
+          onPress={(e) => props.navigation.navigate("ShopBillList")}
         >
           Cash Sale
         </Button>

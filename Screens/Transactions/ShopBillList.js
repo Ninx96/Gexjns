@@ -27,6 +27,16 @@ export default function ShopBillList({ navigation, route }) {
   const [gridData, setGrid] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [isloading, setloading] = React.useState(true);
+  const [imgmodal, setImgModal] = React.useState(false);
+  const [images, setImages] = React.useState([{ url: "../../assets/upload.png" }]);
+
+  const [modal, setModal] = React.useState({
+    tran_id: "",
+    status: "",
+    remarks: "",
+    user_id: "",
+    visible: false,
+  });
 
   const [param, setParam] = React.useState({
     user_id: "",
@@ -36,11 +46,11 @@ export default function ShopBillList({ navigation, route }) {
     from_date: "",
     to_date: "",
   });
-  const widthArr = [50, 100, 120, 150, 150, 100, 150, 70, 150, 150, 100, 150, 100, 150];
+  const widthArr = [50, 100, 120, 150, 150, 100, 150, 70, 150, 150, 150, 150];
 
   const Refresh = () => {
     setloading(true);
-    postData("Transaction/BrowseDC", param).then((data) => {
+    postData("Transaction/BrowseShopBill", param).then((data) => {
       if (data.length === 0) {
         setLoadBtn(false);
       }
@@ -74,7 +84,7 @@ export default function ShopBillList({ navigation, route }) {
       tran_id: tran_id,
     };
     setloading(true);
-    postData("Transaction/DeleteDC", _param).then((data) => {
+    postData("Transaction/DeleteShopBill", _param).then((data) => {
       Refresh();
       setloading(false);
     });
@@ -87,7 +97,7 @@ export default function ShopBillList({ navigation, route }) {
           name="edit"
           size={30}
           onPress={() => {
-            navigation.navigate("kachabillform", { tran_id: tran_id });
+            navigation.navigate("ShopBillForm", { tran_id: tran_id });
           }}
           color="green"
         />
@@ -117,14 +127,14 @@ export default function ShopBillList({ navigation, route }) {
           }}
         />
 
-        <FontAwesome
+        {/* <FontAwesome
           name="file"
           size={30}
           color="black"
           onPress={() => {
             navigation.navigate("rptdc", { tran_id: tran_id, party: party, dc_no: dc_no });
           }}
-        />
+        /> */}
       </View>
     );
   };
@@ -134,19 +144,34 @@ export default function ShopBillList({ navigation, route }) {
       <TouchableRipple
         onPress={async () => {
           setImages([
-            { url: `https://musicstore.quickgst.in/Attachment_Img/DCImage/${file_path}` },
+            { url: `https://musicstore.quickgst.in/Attachment_Img/PackingSlipImage1/${file_path}` },
           ]);
           setImgModal(true);
         }}
       >
         <Image
           source={{
-            uri: `https://musicstore.quickgst.in/Attachment_Img/DCImage/${file_path}`,
+            uri: `https://musicstore.quickgst.in/Attachment_Img/PackingSlipImage1/${file_path}`,
           }}
           style={{ width: 120, height: 60 }}
         />
       </TouchableRipple>
     );
+  };
+
+  const Invoice = (invoice_id, invoice_no) => {
+    if (invoice_no != "") {
+      return (
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate("rptsales", { invoice_id: invoice_id })}
+        >
+          {invoice_no}
+        </Button>
+      );
+    } else {
+      return <View></View>;
+    }
   };
 
   return (
@@ -189,7 +214,7 @@ export default function ShopBillList({ navigation, route }) {
           }}
           onChangeText={(text) => {
             param.search = text;
-            postData("Transaction/BrowseDC", param).then((data) => {
+            postData("Transaction/BrowseShopBill", param).then((data) => {
               if (data.length === 0) {
                 setLoadBtn(false);
               }
@@ -263,12 +288,10 @@ export default function ShopBillList({ navigation, route }) {
                 "Barcode Qty",
                 "DC No.",
                 "Gaddi",
-                "Qty",
                 "Manual Qty",
                 "Builty No.",
                 "Transport",
                 "Remarks",
-                "Image",
                 "Created By",
                 "Action",
               ]}
@@ -289,24 +312,21 @@ export default function ShopBillList({ navigation, route }) {
                   data={[
                     index + 1,
                     item.date,
-                    item.dc_no,
                     item.customer,
+                    item.dc_no,
+                    item.packing_slip_no,
                     item.broker,
+                    item.qty,
                     item.builty_no,
                     item.transport,
-                    item.qty,
-                    item.mycustomer,
                     item.remarks,
-                    Invoice(item.invoice_id, item.invoice_no),
-                    img(item.attachment),
-                    item.status,
-
+                    item.created_by,
                     Action(
                       item.tran_id,
                       item.status,
                       item.status_remarks,
                       item.customer,
-                      item.dc_no
+                      item.packing_slip_no
                     ),
                   ]}
                   style={styles.row}
@@ -324,11 +344,11 @@ export default function ShopBillList({ navigation, route }) {
         style={styles.fab}
         icon="plus"
         onPress={() => {
-          navigation.navigate("kachabillform");
+          navigation.navigate("ShopBillForm");
         }}
       />
 
-      <Portal>
+      {/* <Portal>
         <Dialog visible={modal.visible} dismissable={true}>
           <Dialog.Title>Update Status</Dialog.Title>
           <Dialog.Content>
@@ -398,7 +418,7 @@ export default function ShopBillList({ navigation, route }) {
             </Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal>
+      </Portal> */}
 
       <Modal
         visible={imgmodal}
