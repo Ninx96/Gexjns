@@ -53,6 +53,12 @@ export default function ShopBillForm({ route, navigation }) {
   const [companyList, setCompanyList] = React.useState([]);
   const [mycustomerList, setMyCustomerList] = React.useState([]);
   const [partyList, setPartyList] = React.useState([]);
+  const [partymodal, setPartyModal] = React.useState({
+    party: false,
+    partyForm: false,
+    party_name: "",
+    type_id: "",
+  });
 
   const [modal, setModal] = React.useState({
     po: true,
@@ -65,6 +71,8 @@ export default function ShopBillForm({ route, navigation }) {
   });
   const [hasPermission, setHasPermission] = React.useState(null);
   const [poGrid, setPoGrid] = React.useState([]);
+  const [typeList, settypeList] = React.useState([]);
+
   const [page, setPage] = React.useState(0);
 
   const [dcItem, setItem] = React.useState({
@@ -206,6 +214,9 @@ export default function ShopBillForm({ route, navigation }) {
     postData("StockDropdown/SelectPartyName", { search: "" }).then((resp) => {
       setPartyList(resp);
     });
+    postData("StockDropdown/GetTypeList", "").then((resp) => {
+      settypeList(resp);
+    });
 
     if (tran_id != undefined) {
       Preview();
@@ -328,43 +339,26 @@ export default function ShopBillForm({ route, navigation }) {
       postData("Transaction/SelectItemInShopBill", _param).then((resp) => {
         //console.log(resp);
         resp.map((item, key) => {
-          var isAppend = true;
-          let total_qty = 0;
-          let qty = item.lot_qty >= 20 ? 20 : parseFloat(item.lot_qty);
-
-          param.dcitem.map((item2, key) => {
-            if (item.tran_id == item2.ps_tran_id) {
-              total_qty = parseFloat(total_qty) + parseFloat(item2.qty);
-              if (parseFloat(item.lot_qty) > total_qty) {
-                qty = item.lot_qty - total_qty >= 20 ? 20 : parseFloat(item.lot_qty - total_qty);
-              } else {
-                isAppend = false;
-              }
-            }
+          param.dcitem.push({
+            sb_tran_id: item.tran_id,
+            barcode: item.barcode,
+            comments: item.comments,
+            type: item.type,
+            size: item.size,
+            color: item.color,
+            lot_qty: item.lot_qty,
+            qty: item.pickup_qty.toString(),
+            rate: item.price,
+            amount: Number(20) * Number(item.price),
+            total: Number(20) * Number(item.price),
+            dis_Per: "",
+            dis_amt: "",
+            sub_total: "",
+            tax_per: "",
+            sgst: "",
+            cgst: "",
+            igst: "",
           });
-
-          if (isAppend) {
-            param.dcitem.push({
-              sb_tran_id: item.tran_id,
-              barcode: item.barcode,
-              comments: item.comments,
-              type: item.type,
-              size: item.size,
-              color: item.color,
-              lot_qty: item.lot_qty,
-              qty: qty.toString(),
-              rate: item.price,
-              amount: Number(20) * Number(item.price),
-              total: Number(20) * Number(item.price),
-              dis_Per: "",
-              dis_amt: "",
-              sub_total: "",
-              tax_per: "",
-              sgst: "",
-              cgst: "",
-              igst: "",
-            });
-          }
         });
         param.barcode = "";
         setParam({ ...param, dcitem: param.dcitem });
@@ -432,6 +426,94 @@ export default function ShopBillForm({ route, navigation }) {
         textStyle={{ color: "#6200ee" }}
       />
       <Portal>
+        <Dialog visible={partymodal.partyForm} dismissable={true}>
+          <Dialog.Title>Add Party</Dialog.Title>
+          <Dialog.Content>
+            <View style={{ height: 200 }}>
+              <TextInput
+                style={{ height: 45 }}
+                mode="outlined"
+                label={"Party Name"}
+                value={partymodal.party_name}
+                onChangeText={(text) => {
+                  setPartyModal({
+                    ...partymodal,
+                    party_name: text,
+                  });
+                }}
+              ></TextInput>
+              <View
+                style={{
+                  borderWidth: 0.6,
+                  //borderColor: "#A9A9A9",
+                  borderColor: "black",
+                  borderRadius: 5,
+                  marginTop: 8,
+                  height: 45,
+                  width: "100%",
+                  backgroundColor: "white",
+                }}
+              >
+                <Picker
+                  selectedValue={param.broker_id}
+                  style={{ height: 45, width: "100%" }}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setPartyModal({
+                      ...partymodal,
+                      type_id: item.value,
+                    });
+                  }}
+                >
+                  <Picker.Item label="--Option--" value="" />
+                  {typeList.map((item) => (
+                    <Picker.Item label={item.label} value={item.value} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              mode="contained"
+              color="red"
+              onPress={() => {
+                setPartyModal({ ...partymodal, partyForm: false });
+              }}
+            >
+              Close
+            </Button>
+            <Button
+              mode="contained"
+              color="blue"
+              onPress={() => {
+                if (partymodal.party_name == "") {
+                  Alert.alert("Fill Party Name");
+                } else if (partymodal.type_id == "") {
+                  Alert.alert("Select Type");
+                } else {
+                  let _param = {
+                    party_name: partymodal.party_name,
+                    company_name: "",
+                    type_id: partymodal.type_id,
+                    user_id: param.user_id,
+                  };
+                  postData("Masters/InsertContactInPO", _param).then((data) => {
+                    if (data.valid) {
+                      Alert.alert("Save Succeessfully!!");
+                      setPartyModal({ ...partymodal, partyForm: false });
+                    } else {
+                      Alert.alert(data.msg);
+                    }
+                    setloading(false);
+                  });
+                }
+              }}
+            >
+              Done
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
         <Dialog visible={modal.state} style={{ height: "95%" }} dismissable={true}>
           <Dialog.Title>{modal.po ? "Choose PO" : "Choose Sales"}</Dialog.Title>
           <Dialog.Content>
@@ -461,53 +543,8 @@ export default function ShopBillForm({ route, navigation }) {
                         setloading(true);
 
                         postData("Transaction/PickPackingSaleItemInDC", {
-                          tran_id: modal.po ? 0 : po.tran_id,
+                          tran_id: 0,
                         }).then((resp) => {
-                          resp.map((item, key) => {
-                            var isAppend = true;
-                            let total_qty = 0;
-                            let qty =
-                              parseFloat(item.lot_qty) >= parseFloat(item.qty)
-                                ? item.qty
-                                : parseFloat(item.lot_qty);
-
-                            param.dcitem.map((item2, key) => {
-                              if (item.tran_id == item2.ps_tran_id) {
-                                total_qty = parseFloat(total_qty) + parseFloat(item2.qty);
-                                if (parseFloat(item.lot_qty) > total_qty) {
-                                  qty =
-                                    item.lot_qty - total_qty >= item.qty
-                                      ? item.qty
-                                      : parseFloat(item.lot_qty - total_qty);
-                                } else {
-                                  isAppend = false;
-                                }
-                              }
-                            });
-
-                            if (isAppend) {
-                              param.dcitem.push({
-                                ps_tran_id: item.tran_id,
-                                barcode: item.barcode,
-                                comments: item.comments,
-                                type: item.type,
-                                size: item.size,
-                                color: item.color,
-                                lot_qty: item.lot_qty,
-                                qty: qty,
-                                rate: item.rate,
-                                amount: Number(qty) * Number(item.rate),
-                                total: Number(qty) * Number(item.rate),
-                                dis_Per: "",
-                                dis_amt: "",
-                                sub_total: "",
-                                tax_per: "",
-                                sgst: "",
-                                cgst: "",
-                                igst: "",
-                              });
-                            }
-                          });
                           setModal({ ...modal, state: false });
 
                           setParam({
@@ -565,7 +602,19 @@ export default function ShopBillForm({ route, navigation }) {
           <Dialog.Content>
             <ScrollView>
               <TextInput
-                style={styles.input}
+                style={{ height: 45 }}
+                mode="outlined"
+                label="Qty"
+                value={dcItem.qty}
+                onChangeText={(text) => {
+                  setItem({
+                    ...dcItem,
+                    qty: text,
+                  });
+                }}
+              />
+              <TextInput
+                style={{ height: 45 }}
                 mode="outlined"
                 label="Rate"
                 value={dcItem.rate}
@@ -577,7 +626,7 @@ export default function ShopBillForm({ route, navigation }) {
                 }}
               ></TextInput>
               <TextInput
-                style={styles.input}
+                style={{ height: 45 }}
                 mode="outlined"
                 label="Comments"
                 value={dcItem.comments}
@@ -589,7 +638,7 @@ export default function ShopBillForm({ route, navigation }) {
                 }}
               ></TextInput>
               <TextInput
-                style={styles.input}
+                style={{ height: 45 }}
                 mode="outlined"
                 label="Size"
                 value={dcItem.size}
@@ -601,7 +650,7 @@ export default function ShopBillForm({ route, navigation }) {
                 }}
               ></TextInput>
               <TextInput
-                style={styles.input}
+                style={{ height: 45 }}
                 mode="outlined"
                 label="Color"
                 value={dcItem.color}
@@ -731,6 +780,16 @@ export default function ShopBillForm({ route, navigation }) {
             <View
               style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
             >
+              <Button
+                icon="account-plus"
+                mode="contained"
+                compact={true}
+                onPress={() => setPartyModal({ ...partymodal, partyForm: true })}
+              >
+                {" "}
+                Add Party
+              </Button>
+
               <Button
                 color="green"
                 mode="contained"

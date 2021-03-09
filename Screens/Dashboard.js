@@ -585,7 +585,12 @@ function Dashboard(props) {
         <Button mode="contained" compact={true} color="red">
           Challan Invoice
         </Button>
-        <Button mode="contained" compact={true} color="red">
+        <Button
+          mode="contained"
+          compact={true}
+          onPress={(e) => props.navigation.navigate("DayBookList")}
+          color="red"
+        >
           Day Book
         </Button>
         <Button mode="contained" compact={true} color="red">

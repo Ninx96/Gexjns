@@ -1,17 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Image, ScrollView, Modal, Alert, FlatList } from "react-native";
 import { FontAwesome, EvilIcons } from "@expo/vector-icons";
-import {
-  FAB,
-  Text,
-  DataTable,
-  Searchbar,
-  Button,
-  TouchableRipple,
-  Dialog,
-  Portal,
-  TextInput,
-} from "react-native-paper";
+import { FAB, Searchbar, TouchableRipple } from "react-native-paper";
 import { Table, Row } from "react-native-table-component";
 import { postData } from "../../_Services/Api_Service";
 import { AuthContext } from "../../Components/Context";
@@ -19,9 +9,8 @@ import font from "../../fonts.js";
 import DatePicker from "react-native-datepicker";
 import Spinner from "react-native-loading-spinner-overlay";
 import ImageViewer from "react-native-image-zoom-viewer";
-import DropDownPicker from "react-native-dropdown-picker";
 
-export default function ShopBillList({ navigation, route }) {
+export default function DayBookList({ navigation, route }) {
   const { userId } = React.useContext(AuthContext);
   const [visible, setVisible] = React.useState(false);
   const [gridData, setGrid] = React.useState([]);
@@ -31,17 +20,15 @@ export default function ShopBillList({ navigation, route }) {
 
   const [param, setParam] = React.useState({
     user_id: "",
-    ledger_id: "0",
     search: "",
-    skip: "0",
     from_date: "",
     to_date: "",
   });
-  const widthArr = [50, 100, 120, 150, 150, 100, 150, 70, 150, 150, 150, 150];
+  const widthArr = [50, 100, 120, 150, 150, 100, 150, 70, 150];
 
   const Refresh = () => {
     setloading(true);
-    postData("Transaction/BrowseShopBill", param).then((data) => {
+    postData("Transaction/BrowseDayBookDetails", param).then((data) => {
       if (data.length === 0) {
         setLoadBtn(false);
       }
@@ -54,7 +41,6 @@ export default function ShopBillList({ navigation, route }) {
   React.useEffect(() => {
     userId().then((data) => {
       param.user_id = data;
-
       postData("StockDashboard/PreviewDateFilter", param).then((data) => {
         //console.log(data);
         param.from_date = data.from_date;
@@ -74,20 +60,20 @@ export default function ShopBillList({ navigation, route }) {
       tran_id: tran_id,
     };
     setloading(true);
-    postData("Transaction/DeleteShopBill", _param).then((data) => {
+    postData("Transaction/DeleteDayBook", _param).then((data) => {
       Refresh();
       setloading(false);
     });
   };
 
-  const Action = (tran_id, status, status_remarks, party, dc_no) => {
+  const Action = (tran_id) => {
     return (
       <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
         <FontAwesome
           name="edit"
           size={30}
           onPress={() => {
-            navigation.navigate("ShopBillForm", { tran_id: tran_id });
+            navigation.navigate("DayBookForm", { tran_id: tran_id });
           }}
           color="green"
         />
@@ -129,19 +115,21 @@ export default function ShopBillList({ navigation, route }) {
     );
   };
 
-  const img = (file_path) => {
+  const img = (folder, file_path) => {
     return (
       <TouchableRipple
         onPress={async () => {
           setImages([
-            { url: `https://musicstore.quickgst.in/Attachment_Img/PackingSlipImage1/${file_path}` },
+            {
+              url: `https://musicstore.quickgst.in/Attachment_Img/${folder}/${file_path}`,
+            },
           ]);
           setImgModal(true);
         }}
       >
         <Image
           source={{
-            uri: `https://musicstore.quickgst.in/Attachment_Img/PackingSlipImage1/${file_path}`,
+            uri: `https://musicstore.quickgst.in/Attachment_Img/${folder}/${file_path}`,
           }}
           style={{ width: 120, height: 60 }}
         />
@@ -258,13 +246,10 @@ export default function ShopBillList({ navigation, route }) {
                 "Sr No",
                 "Date",
                 "Party Name",
-                "Barcode Qty",
-                "DC No.",
-                "Gaddi",
-                "Manual Qty",
-                "Builty No.",
-                "Transport",
+                "Amount",
                 "Remarks",
+                "Image1",
+                "Image2",
                 "Created By",
                 "Action",
               ]}
@@ -285,22 +270,13 @@ export default function ShopBillList({ navigation, route }) {
                   data={[
                     index + 1,
                     item.date,
-                    item.customer,
-                    item.dc_no,
-                    item.packing_slip_no,
-                    item.broker,
-                    item.qty,
-                    item.builty_no,
-                    item.transport,
+                    item.party,
+                    item.amount,
                     item.remarks,
+                    img("Day_Book_DetailsImage", item.image_path),
+                    img("Day_Book_DetailsImageTwo", item.image_path1),
                     item.created_by,
-                    Action(
-                      item.tran_id,
-                      item.status,
-                      item.status_remarks,
-                      item.customer,
-                      item.packing_slip_no
-                    ),
+                    Action(item.tran_id),
                   ]}
                   style={styles.row}
                   textStyle={styles.text}
@@ -317,7 +293,7 @@ export default function ShopBillList({ navigation, route }) {
         style={styles.fab}
         icon="plus"
         onPress={() => {
-          navigation.navigate("ShopBillForm");
+          navigation.navigate("DayBookForm");
         }}
       />
 
