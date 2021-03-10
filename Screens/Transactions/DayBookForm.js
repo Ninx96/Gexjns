@@ -9,14 +9,7 @@ import {
   Dialog,
   FAB,
 } from "react-native-paper";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Alert,
-  FlatList,
-  Image,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Alert, FlatList, Image } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import { AuthContext } from "../../Components/Context";
 import { postData } from "../../_Services/Api_Service";
@@ -38,7 +31,7 @@ const DayBookForm = ({ route, navigation }) => {
     tran_id: tran_id == undefined ? 0 : tran_id,
     date: moment().format("DD/MM/YYYY"),
     party: "",
-    amount: "",
+    amount: "0",
     remarks: "",
     uri1: require("../../assets/upload.png"),
     image_path1: "",
@@ -336,11 +329,11 @@ const DayBookForm = ({ route, navigation }) => {
               style={styles.input}
               mode="outlined"
               label={"Invoice Amount"}
-              value={param.invoice_amt}
+              value={param.amount}
               onChangeText={(text) => {
                 setParam({
                   ...param,
-                  invoice_amt: text,
+                  amount: text,
                 });
               }}
             ></TextInput>
@@ -375,16 +368,8 @@ const DayBookForm = ({ route, navigation }) => {
             }}
           >
             <View style={{ width: "40%" }}>
-              <Image
-                source={param.uri}
-                style={{ width: "100%", height: 150, borderRadius: 10 }}
-              />
-              <Button
-                mode="contained"
-                compact={true}
-                onPress={ImageUpload}
-                color="green"
-              >
+              <Image source={param.uri} style={{ width: "100%", height: 150, borderRadius: 10 }} />
+              <Button mode="contained" compact={true} onPress={ImageUpload} color="green">
                 Browse
               </Button>
               <Button
@@ -402,16 +387,8 @@ const DayBookForm = ({ route, navigation }) => {
               </Button>
             </View>
             <View style={{ width: "40%" }}>
-              <Image
-                source={param.uri1}
-                style={{ width: "100%", height: 150, borderRadius: 10 }}
-              />
-              <Button
-                mode="contained"
-                compact={true}
-                onPress={Image2Upload}
-                color="green"
-              >
+              <Image source={param.uri1} style={{ width: "100%", height: 150, borderRadius: 10 }} />
+              <Button mode="contained" compact={true} onPress={Image2Upload} color="green">
                 Browse
               </Button>
               <Button

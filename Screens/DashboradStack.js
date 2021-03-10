@@ -44,6 +44,8 @@ import ShopBillForm from "./Transactions/ShopBillForm";
 import ShopBillList from "./Transactions/ShopBillList";
 import DayBookList from "./Transactions/DayBookList";
 import DayBookForm from "./Transactions/DayBookForm";
+import ShopGRList from "./Transactions/ShopGRList";
+import ShopGRForm from "./Transactions/ShopGRForm";
 
 function DashboardStack(prop) {
   const Stack = createStackNavigator();
@@ -69,10 +71,26 @@ function DashboardStack(prop) {
       {/* ---------------------Transactions--------------------- */}
 
       <Stack.Screen
+        name="ShopGRForm"
+        component={ShopGRForm}
+        options={{
+          headerTitle: "Shop GR",
+        }}
+      />
+
+      <Stack.Screen
+        name="ShopGRList"
+        component={ShopGRList}
+        options={{
+          headerTitle: "Shop GR",
+        }}
+      />
+
+      <Stack.Screen
         name="ShopBillForm"
         component={ShopBillForm}
         options={{
-          headerTitle: "Cash Sales",
+          headerTitle: "Shop Bill",
         }}
       />
 
@@ -80,7 +98,7 @@ function DashboardStack(prop) {
         name="ShopBillList"
         component={ShopBillList}
         options={{
-          headerTitle: "Cash Sales",
+          headerTitle: "Shop Bill",
         }}
       />
 

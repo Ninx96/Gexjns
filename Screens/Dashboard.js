@@ -593,7 +593,12 @@ function Dashboard(props) {
         >
           Day Book
         </Button>
-        <Button mode="contained" compact={true} color="red">
+        <Button
+          mode="contained"
+          compact={true}
+          onPress={(e) => props.navigation.navigate("ShopGRList")}
+          color="red"
+        >
           Shop GR
         </Button>
       </View>

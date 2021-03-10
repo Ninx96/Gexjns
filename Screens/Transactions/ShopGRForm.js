@@ -9,14 +9,7 @@ import {
   Dialog,
   FAB,
 } from "react-native-paper";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Alert,
-  FlatList,
-  Image,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Alert, FlatList, Image } from "react-native";
 import { Table, Row } from "react-native-table-component";
 import { AuthContext } from "../../Components/Context";
 import { postData } from "../../_Services/Api_Service";
@@ -29,28 +22,96 @@ import Spinner from "react-native-loading-spinner-overlay";
 import font from "../../fonts.js";
 import moment from "moment";
 
-const ShopGRForm = () => {
+const ShopGRForm = ({ navigation, route }) => {
   const { tran_id } = route.params == undefined ? 0 : route.params;
   const [isloading, setloading] = React.useState(true);
   const { userId } = React.useContext(AuthContext);
   const [partyList, setPartyList] = React.useState([]);
+  const [brokerList, setBrokerList] = React.useState([]);
+
   const [param, setParam] = React.useState({
     tran_id: tran_id == undefined ? 0 : tran_id,
     date: moment().format("DD/MM/YYYY"),
     party: "",
+    party_id: "",
+    type: "",
+    challan_no: "",
+    mode_of_gr: "",
+    type: "",
+    item: "",
+    broker_id: "",
+    issue: "",
+    receive: "",
+    balance: "",
+    type: "",
     amount: "",
     remarks: "",
     uri1: require("../../assets/upload.png"),
     image_path1: "",
     uri: require("../../assets/upload.png"),
     image_path: "",
-    entry_no: "",
-    prefix: "PB",
+    taxes: "",
+    paid: "",
+    dis_per: "",
+    discount: "",
+    gaddi_comm: "",
+    other_charges: "",
+    other_charges_less: "",
     user_id: "",
+
+    dcitem: [],
   });
   const [modal, setModal] = React.useState({
     party: false,
+    item: false,
   });
+  const [item, setItem] = React.useState({
+    comment: "",
+    amount: "",
+    receive_qty: "",
+    issue_qty: "",
+    rate: "",
+    dis_Per: "",
+    dis_amt: "",
+    sub_total: "",
+    tax_per: "",
+    sgst: "",
+    cgst: "",
+    igst: "",
+  });
+
+  const Action = (key, item) => {
+    return (
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button
+          mode="contained"
+          color="red"
+          compact={true}
+          onPress={() => {
+            setItem(item);
+            setModal({ ...modal, item: true, index: key });
+            param.dcitem.splice(key, 1);
+          }}
+        >
+          Edit
+        </Button>
+
+        <Button
+          mode="contained"
+          color="blue"
+          compact={true}
+          onPress={() => {
+            param.dcitem.splice(key, 1);
+            setParam({ ...param });
+          }}
+        >
+          X
+        </Button>
+      </View>
+    );
+  };
+
+  const widthArr = [50, 100, 100, 100, 80, 100];
 
   const ImageUpload = async () => {
     try {
@@ -155,17 +216,17 @@ const ShopGRForm = () => {
   };
 
   const Preview = () => {
-    postData("Transaction/PreviewDayBook", param).then((resp) => {
+    postData("Transaction/PreviewShopGR", param).then((resp) => {
       //console.log(resp);
       if (resp.image_path) {
-        param.uri = `https://musicstore.quickgst.in/Attachment_Img/Day_Book_DetailsImage/${resp.image_path}`;
+        param.uri = `https://musicstore.quickgst.in/Attachment_Img/GR_Images/${resp.image_path}`;
       }
       if (resp.image_path1) {
-        param.uri1 = `https://musicstore.quickgst.in/Attachment_Img/Day_Book_DetailsImageTwo/${resp.image_path1}`;
+        param.uri1 = `https://musicstore.quickgst.in/Attachment_Img/GR_ImagesTwo/${resp.image_path1}`;
       }
       setParam({
         ...param,
-        amount: resp.invoice_amt,
+
         ...resp,
       });
 
@@ -177,11 +238,14 @@ const ShopGRForm = () => {
     userId().then((data) => {
       param.user_id = data;
     });
+    postData("StockDropdown/GetBrokerList", param).then((resp) => {
+      setBrokerList(resp);
+    });
     if (tran_id != undefined) {
       Preview();
     } else {
-      postData("Transaction/EntryNoInDayBook", "").then((resp) => {
-        setParam({ ...param, entry_no: resp.toString() });
+      postData("Transaction/EntryNoInShopGR", "").then((resp) => {
+        setParam({ ...param, challan_no: resp.toString() });
         setloading(false);
       });
     }
@@ -200,6 +264,64 @@ const ShopGRForm = () => {
       />
       <Portal>
         <Dialog
+          visible={modal.item}
+          onDismiss={() => {
+            setModal({ ...modal, item: false });
+          }}
+        >
+          <Dialog.Title>Item Details</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              style={{ height: 45 }}
+              mode="outlined"
+              label={"Comments"}
+              placeholder="Comments"
+              onChangeText={(text) => {
+                setItem({ ...item, comment: text });
+              }}
+              value={item.lot_no}
+            ></TextInput>
+            <TextInput
+              style={{ height: 45 }}
+              mode="outlined"
+              label={"Receive"}
+              placeholder="Receive"
+              onChangeText={(text) => {
+                setItem({ ...item, receive_qty: text });
+              }}
+              value={item.receive}
+            ></TextInput>
+            <TextInput
+              style={{ height: 45 }}
+              mode="outlined"
+              label={"Rate"}
+              placeholder="Rate"
+              onChangeText={(text) => {
+                setItem({ ...item, rate: text });
+              }}
+              value={item.rate}
+            ></TextInput>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                item.amount = parseFloat(item.receive_qty) * parseFloat(item.rate);
+                if (modal.index) {
+                  param.dcitem.splice(index, 1, item);
+                } else {
+                  param.dcitem.push(item);
+                }
+
+                setModal({ ...modal, item: false });
+                setParam({ ...param });
+              }}
+            >
+              Done
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog
           visible={modal.party}
           onDismiss={() => {
             setModal({ ...modal, party: false });
@@ -213,6 +335,8 @@ const ShopGRForm = () => {
                 setParam({
                   ...param,
                   party: item.name,
+                  party_id: item.id,
+                  type: item.type,
                 });
               }}
               containerStyle={{ padding: 1 }}
@@ -322,28 +446,42 @@ const ShopGRForm = () => {
               style={styles.input}
               mode="outlined"
               label={"GR No."}
-              value={param.entry_no}
+              value={param.challan_no}
               disabled={true}
               onChangeText={(text) => {
                 setParam({
                   ...param,
-                  entry_no: text,
+                  challan_no: text,
                 });
               }}
             ></TextInput>
 
-            <TextInput
-              style={styles.input}
-              mode="outlined"
-              label={"Gaddi"}
-              value={param.invoice_amt}
-              onChangeText={(text) => {
-                setParam({
-                  ...param,
-                  invoice_amt: text,
-                });
+            <View
+              style={{
+                borderWidth: 0.6,
+                //borderColor: "#A9A9A9",
+                borderColor: "black",
+                borderRadius: 5,
+                marginTop: 8,
+                height: 45,
+                width: "40%",
+                backgroundColor: "white",
               }}
-            ></TextInput>
+            >
+              <Picker
+                selectedValue={param.broker_id}
+                style={{ height: 45, width: "100%" }}
+                onValueChange={(itemValue, itemIndex) => {
+                  GetBrokerEmployee(itemValue);
+                  setParam({ ...param, broker_id: itemValue });
+                }}
+              >
+                <Picker.Item label="--Select Gaddi--" value="" />
+                {brokerList.map((item) => (
+                  <Picker.Item label={item.label} value={item.value} />
+                ))}
+              </Picker>
+            </View>
           </View>
           <View
             style={{
@@ -375,16 +513,8 @@ const ShopGRForm = () => {
             }}
           >
             <View style={{ width: "40%" }}>
-              <Image
-                source={param.uri}
-                style={{ width: "100%", height: 150, borderRadius: 10 }}
-              />
-              <Button
-                mode="contained"
-                compact={true}
-                onPress={ImageUpload}
-                color="green"
-              >
+              <Image source={param.uri} style={{ width: "100%", height: 150, borderRadius: 10 }} />
+              <Button mode="contained" compact={true} onPress={ImageUpload} color="green">
                 Browse
               </Button>
               <Button
@@ -402,16 +532,8 @@ const ShopGRForm = () => {
               </Button>
             </View>
             <View style={{ width: "40%" }}>
-              <Image
-                source={param.uri1}
-                style={{ width: "100%", height: 150, borderRadius: 10 }}
-              />
-              <Button
-                mode="contained"
-                compact={true}
-                onPress={Image2Upload}
-                color="green"
-              >
+              <Image source={param.uri1} style={{ width: "100%", height: 150, borderRadius: 10 }} />
+              <Button mode="contained" compact={true} onPress={Image2Upload} color="green">
                 Browse
               </Button>
               <Button
@@ -429,7 +551,53 @@ const ShopGRForm = () => {
               </Button>
             </View>
           </View>
-          <View style={{ marginVertical: 5 }}></View>
+
+          <View style={{ marginVertical: 5, paddingHorizontal: 2 }}>
+            <ScrollView horizontal={true}>
+              <View>
+                <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
+                  <Row
+                    data={["S No.", "Comments", "Receive", "Rate", "Amount", "Action"]}
+                    style={styles.head}
+                    textStyle={styles.text}
+                    widthArr={widthArr}
+                  />
+                </Table>
+                <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
+                  {param.dcitem.map((item, index) => {
+                    return (
+                      <Row
+                        key={index}
+                        data={[
+                          index + 1,
+                          item.comment,
+                          item.receive_qty,
+                          item.rate,
+                          item.amount,
+                          Action(index, item),
+                        ]}
+                        style={styles.row}
+                        textStyle={styles.text}
+                        widthArr={widthArr}
+                      />
+                    );
+                  })}
+                </Table>
+              </View>
+            </ScrollView>
+            <Button
+              mode="contained"
+              color="green"
+              compact={true}
+              style={{ alignSelf: "flex-end", margin: 10 }}
+              onPress={() => {
+                setModal({ item: true });
+              }}
+            >
+              Add Manual
+            </Button>
+          </View>
+          <View style={{ height: 80 }}></View>
         </View>
       </ScrollView>
       <FAB

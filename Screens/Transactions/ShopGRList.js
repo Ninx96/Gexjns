@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Image,
-  ScrollView,
-  Modal,
-  Alert,
-  FlatList,
-} from "react-native";
+import { StyleSheet, View, Image, ScrollView, Modal, Alert, FlatList } from "react-native";
 import { FontAwesome, EvilIcons } from "@expo/vector-icons";
 import { FAB, Searchbar, TouchableRipple } from "react-native-paper";
 import { Table, Row } from "react-native-table-component";
@@ -18,15 +10,13 @@ import DatePicker from "react-native-datepicker";
 import Spinner from "react-native-loading-spinner-overlay";
 import ImageViewer from "react-native-image-zoom-viewer";
 
-const ShopGRList = () => {
+const ShopGRList = ({ navigation }) => {
   const { userId } = React.useContext(AuthContext);
   const [visible, setVisible] = React.useState(false);
   const [gridData, setGrid] = React.useState([]);
   const [isloading, setloading] = React.useState(true);
   const [imgmodal, setImgModal] = React.useState(false);
-  const [images, setImages] = React.useState([
-    { url: "../../assets/upload.png" },
-  ]);
+  const [images, setImages] = React.useState([{ url: "../../assets/upload.png" }]);
 
   const [param, setParam] = React.useState({
     user_id: "",
@@ -70,7 +60,7 @@ const ShopGRList = () => {
       tran_id: tran_id,
     };
     setloading(true);
-    postData("Transaction/DeleteDayBook", _param).then((data) => {
+    postData("Transaction/DeleteShopGR", _param).then((data) => {
       Refresh();
       setloading(false);
     });
@@ -83,7 +73,7 @@ const ShopGRList = () => {
           name="edit"
           size={30}
           onPress={() => {
-            navigation.navigate("DayBookForm", { tran_id: tran_id });
+            navigation.navigate("ShopGRForm", { tran_id: tran_id });
           }}
           color="green"
         />
@@ -186,7 +176,7 @@ const ShopGRList = () => {
           }}
           onChangeText={(text) => {
             param.search = text;
-            postData("Transaction/BrowseShopBill", param).then((data) => {
+            postData("Transaction/BrowseShopGR", param).then((data) => {
               if (data.length === 0) {
                 setLoadBtn(false);
               }
@@ -288,10 +278,13 @@ const ShopGRList = () => {
                     index + 1,
                     item.date,
                     item.party,
+                    item.challan_no,
+                    item.broker,
+                    item.receive_qty,
                     item.amount,
                     item.remarks,
-                    img("Day_Book_DetailsImage", item.image_path),
-                    img("Day_Book_DetailsImageTwo", item.image_path1),
+                    img("GR_Images", item.image_path),
+                    img("GR_ImagesTwo", item.image_path1),
                     item.created_by,
                     Action(item.tran_id),
                   ]}
@@ -310,7 +303,7 @@ const ShopGRList = () => {
         style={styles.fab}
         icon="plus"
         onPress={() => {
-          navigation.navigate("DayBookForm");
+          navigation.navigate("ShopGRForm");
         }}
       />
 
