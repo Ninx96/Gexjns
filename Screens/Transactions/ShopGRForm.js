@@ -29,7 +29,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import font from "../../fonts.js";
 import moment from "moment";
 
-const DayBookForm = ({ route, navigation }) => {
+const ShopGRForm = () => {
   const { tran_id } = route.params == undefined ? 0 : route.params;
   const [isloading, setloading] = React.useState(true);
   const { userId } = React.useContext(AuthContext);
@@ -321,7 +321,7 @@ const DayBookForm = ({ route, navigation }) => {
             <TextInput
               style={styles.input}
               mode="outlined"
-              label={"Entry No."}
+              label={"GR No."}
               value={param.entry_no}
               disabled={true}
               onChangeText={(text) => {
@@ -335,7 +335,7 @@ const DayBookForm = ({ route, navigation }) => {
             <TextInput
               style={styles.input}
               mode="outlined"
-              label={"Invoice Amount"}
+              label={"Gaddi"}
               value={param.invoice_amt}
               onChangeText={(text) => {
                 setParam({
@@ -429,6 +429,7 @@ const DayBookForm = ({ route, navigation }) => {
               </Button>
             </View>
           </View>
+          <View style={{ marginVertical: 5 }}></View>
         </View>
       </ScrollView>
       <FAB
@@ -512,4 +513,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DayBookForm;
+export default ShopGRForm;
