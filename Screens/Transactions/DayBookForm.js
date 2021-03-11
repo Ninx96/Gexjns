@@ -149,7 +149,7 @@ const DayBookForm = ({ route, navigation }) => {
 
   const Preview = () => {
     postData("Transaction/PreviewDayBook", param).then((resp) => {
-      //console.log(resp);
+      console.log(resp);
       if (resp.image_path) {
         param.uri = `https://musicstore.quickgst.in/Attachment_Img/Day_Book_DetailsImage/${resp.image_path}`;
       }

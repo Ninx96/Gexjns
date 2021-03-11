@@ -67,17 +67,17 @@ const ShopGRForm = ({ navigation, route }) => {
   });
   const [item, setItem] = React.useState({
     comment: "",
-    amount: "",
-    receive_qty: "",
-    issue_qty: "",
-    rate: "",
-    dis_Per: "",
-    dis_amt: "",
-    sub_total: "",
-    tax_per: "",
-    sgst: "",
-    cgst: "",
-    igst: "",
+    amount: "0",
+    receive_qty: "0",
+    issue_qty: "0",
+    rate: "0",
+    dis_Per: "0",
+    dis_amt: "0",
+    sub_total: "0",
+    tax_per: "0",
+    sgst: "0",
+    cgst: "0",
+    igst: "0",
   });
 
   const Action = (key, item) => {
@@ -591,6 +591,20 @@ const ShopGRForm = ({ navigation, route }) => {
               compact={true}
               style={{ alignSelf: "flex-end", margin: 10 }}
               onPress={() => {
+                setItem({
+                  comment: "",
+                  amount: "0",
+                  receive_qty: "0",
+                  issue_qty: "0",
+                  rate: "0",
+                  dis_Per: "0",
+                  dis_amt: "0",
+                  sub_total: "0",
+                  tax_per: "0",
+                  sgst: "0",
+                  cgst: "0",
+                  igst: "0",
+                });
                 setModal({ item: true });
               }}
             >

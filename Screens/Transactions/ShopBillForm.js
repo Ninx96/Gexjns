@@ -28,6 +28,7 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
+import TaxBox from "../../Layout/TaxBox";
 import { Table, Row } from "react-native-table-component";
 import { postData } from "../../_Services/Api_Service";
 import { AuthContext } from "../../Components/Context";
@@ -67,7 +68,6 @@ export default function ShopBillForm({ route, navigation }) {
     qr: false,
     scanned: false,
     party: false,
-    index: "",
   });
   const [hasPermission, setHasPermission] = React.useState(null);
   const [poGrid, setPoGrid] = React.useState([]);
@@ -76,24 +76,24 @@ export default function ShopBillForm({ route, navigation }) {
   const [page, setPage] = React.useState(0);
 
   const [dcItem, setItem] = React.useState({
-    sb_tran_id: "",
+    sb_tran_id: "0",
     barcode: "",
     comments: "",
     type: "",
     size: "",
     color: "",
-    lot_qty: "",
-    qty: "",
-    rate: "",
-    amount: "",
-    total: "",
-    dis_Per: "",
-    dis_amt: "",
-    sub_total: "",
-    tax_per: "",
-    sgst: "",
-    cgst: "",
-    igst: "",
+    lot_qty: "0",
+    qty: "0",
+    rate: "0",
+    amount: "0",
+    total: "0",
+    dis_Per: "0",
+    dis_amt: "0",
+    sub_total: "0",
+    tax_per: "0",
+    sgst: "0",
+    cgst: "0",
+    igst: "0",
   });
 
   const [param, setParam] = React.useState({
@@ -179,12 +179,8 @@ export default function ShopBillForm({ route, navigation }) {
         100 -
       (isNaN(parseInt(param.discount)) ? 0 : parseInt(param.discount)) -
       (isNaN(parseInt(param.gaddi_comm)) ? 0 : parseInt(param.gaddi_comm)) +
-      (isNaN(parseInt(param.other_charges))
-        ? 0
-        : parseInt(param.other_charges)) -
-      (isNaN(parseInt(param.other_charges_less))
-        ? 0
-        : parseInt(param.other_charges_less));
+      (isNaN(parseInt(param.other_charges)) ? 0 : parseInt(param.other_charges)) -
+      (isNaN(parseInt(param.other_charges_less)) ? 0 : parseInt(param.other_charges_less));
 
     param.Gtotal_amt = temp.toString();
   };
@@ -192,13 +188,12 @@ export default function ShopBillForm({ route, navigation }) {
   const widthArr = [50, 200, 100, 100, 150, 100, 100, 200, 70, 150, 60, 150];
 
   const Refresh = () => {
-    postData(
-      modal.po ? "Transaction/PickPoDC" : "Transaction/PickPackingSaleInDC",
-      param
-    ).then((data) => {
-      //console.log(data);
-      setPoGrid(data);
-    });
+    postData(modal.po ? "Transaction/PickPoDC" : "Transaction/PickPackingSaleInDC", param).then(
+      (data) => {
+        //console.log(data);
+        setPoGrid(data);
+      }
+    );
   };
 
   React.useEffect(() => {
@@ -519,11 +514,7 @@ export default function ShopBillForm({ route, navigation }) {
           </Dialog.Actions>
         </Dialog>
 
-        <Dialog
-          visible={modal.state}
-          style={{ height: "95%" }}
-          dismissable={true}
-        >
+        <Dialog visible={modal.state} style={{ height: "95%" }} dismissable={true}>
           <Dialog.Title>{modal.po ? "Choose PO" : "Choose Sales"}</Dialog.Title>
           <Dialog.Content>
             <Searchbar
@@ -566,8 +557,7 @@ export default function ShopBillForm({ route, navigation }) {
                             customer_id: po.party_id == "" ? null : po.party_id,
                             type: po.type,
                             broker_id: po.broker_id == "" ? null : po.broker_id,
-                            broker_emp_id:
-                              po.broker_emp_id == "" ? null : po.broker_emp_id,
+                            broker_emp_id: po.broker_emp_id == "" ? null : po.broker_emp_id,
                             transport: po.transport,
                             remarks: po.remarks,
                           });
@@ -638,6 +628,18 @@ export default function ShopBillForm({ route, navigation }) {
               <TextInput
                 style={{ height: 45 }}
                 mode="outlined"
+                label="Type"
+                value={dcItem.type}
+                onChangeText={(text) => {
+                  setItem({
+                    ...dcItem,
+                    type: text,
+                  });
+                }}
+              />
+              <TextInput
+                style={{ height: 45 }}
+                mode="outlined"
                 label="Comments"
                 value={dcItem.comments}
                 onChangeText={(text) => {
@@ -677,11 +679,13 @@ export default function ShopBillForm({ route, navigation }) {
             <Button
               onPress={() => {
                 setModal({ ...modal, item: false });
-                dcItem.amount =
-                  parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
+                dcItem.amount = parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
                 dcItem.total = parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
-                //console.log(dcItem);
-                param.dcitem.splice(modal.index, 0, dcItem);
+                if (modal.index) {
+                  param.dcitem.splice(index, 1, dcItem);
+                } else {
+                  param.dcitem.push(dcItem);
+                }
               }}
             >
               Done
@@ -690,9 +694,7 @@ export default function ShopBillForm({ route, navigation }) {
         </Dialog>
 
         <Dialog visible={modal.qr} dismissable={true}>
-          <Dialog.Title style={{ textAlign: "center" }}>
-            Scan QR Code
-          </Dialog.Title>
+          <Dialog.Title style={{ textAlign: "center" }}>Scan QR Code</Dialog.Title>
           <FontAwesome
             name="close"
             size={30}
@@ -712,9 +714,7 @@ export default function ShopBillForm({ route, navigation }) {
             <View style={{ width: "100%", height: "92%" }}>
               <BarCodeScanner
                 //barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-                onBarCodeScanned={
-                  modal.scanned ? undefined : handleBarCodeScanned
-                }
+                onBarCodeScanned={modal.scanned ? undefined : handleBarCodeScanned}
                 style={[StyleSheet.absoluteFill, styles.barcontainer]}
               >
                 <View style={styles.layerTop} />
@@ -810,9 +810,7 @@ export default function ShopBillForm({ route, navigation }) {
                 icon="account-plus"
                 mode="contained"
                 compact={true}
-                onPress={() =>
-                  setPartyModal({ ...partymodal, partyForm: true })
-                }
+                onPress={() => setPartyModal({ ...partymodal, partyForm: true })}
               >
                 {" "}
                 Add Party
@@ -1056,12 +1054,7 @@ export default function ShopBillForm({ route, navigation }) {
                   source={param.uri}
                   style={{ width: "100%", height: 150, borderRadius: 10 }}
                 />
-                <Button
-                  mode="contained"
-                  compact={true}
-                  onPress={ImageUpload}
-                  color="green"
-                >
+                <Button mode="contained" compact={true} onPress={ImageUpload} color="green">
                   Browse
                 </Button>
                 <Button
@@ -1083,12 +1076,7 @@ export default function ShopBillForm({ route, navigation }) {
                   source={param.uri1}
                   style={{ width: "100%", height: 150, borderRadius: 10 }}
                 />
-                <Button
-                  mode="contained"
-                  compact={true}
-                  onPress={Image2Upload}
-                  color="green"
-                >
+                <Button mode="contained" compact={true} onPress={Image2Upload} color="green">
                   Browse
                 </Button>
                 <Button
@@ -1159,9 +1147,7 @@ export default function ShopBillForm({ route, navigation }) {
                 </View>
 
                 <ScrollView horizontal={true}>
-                  <Table
-                    borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}
-                  >
+                  <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
                     <Row
                       data={["#", "Barcode", "Qty", "Rate", "Amount", "Action"]}
                       style={styles.head}
@@ -1170,13 +1156,10 @@ export default function ShopBillForm({ route, navigation }) {
                     />
                     {param.dcitem.map((item, index) => {
                       Tqty =
-                        parseFloat(Tqty) +
-                        (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
+                        parseFloat(Tqty) + (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
                       Tamt =
                         parseFloat(Tamt) +
-                        (isNaN(parseInt(item.amount))
-                          ? 0
-                          : parseInt(item.amount));
+                        (isNaN(parseInt(item.amount)) ? 0 : parseInt(item.amount));
                       param.total_qty = Tqty;
                       param.total_amt = Tamt;
                       //console.log(item);
@@ -1206,23 +1189,43 @@ export default function ShopBillForm({ route, navigation }) {
               </View>
             </View>
 
-            {/* <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-              <Text style={{ alignSelf: "center", marginBottom: 6 }}>
-                Total Qty : {param.total_qty}
-              </Text>
-              <Text style={{ alignSelf: "center", marginBottom: 6 }}>
-                Total Amt : {param.total_amt}
-              </Text>
-            </View> */}
+            <Button
+              mode="contained"
+              color="green"
+              compact={true}
+              style={{ alignSelf: "flex-end", margin: 10 }}
+              onPress={() => {
+                setItem({
+                  sb_tran_id: "0",
+                  barcode: "",
+                  comments: "",
+                  type: "",
+                  size: "",
+                  color: "",
+                  lot_qty: "0",
+                  qty: "0",
+                  rate: "0",
+                  amount: "0",
+                  total: "0",
+                  dis_Per: "0",
+                  dis_amt: "0",
+                  sub_total: "0",
+                  tax_per: "0",
+                  sgst: "0",
+                  cgst: "0",
+                  igst: "0",
+                });
+                setModal({ item: true });
+              }}
+            >
+              Add Manual
+            </Button>
           </View>
 
           <View style={{ marginVertical: 5, paddingHorizontal: 10 }}>
             <Row style={styles.row} data={["Total Qty :", param.total_qty]} />
-            <Row
-              style={styles.row}
-              data={["Total Amount :", param.total_amt]}
-            />
-            <Row
+            <Row style={styles.row} data={["Total Amount :", param.total_amt]} />
+            {/* <Row
               style={styles.row}
               data={[
                 "Discount :",
@@ -1232,6 +1235,25 @@ export default function ShopBillForm({ route, navigation }) {
                   keyboardType="numeric"
                   value={param.discount}
                   onChangeText={(text) => {
+                    param.discount = text;
+                    calcParams();
+                    setParam({
+                      ...param,
+                      discount: text,
+                    });
+                  }}
+                />,
+              ]}
+            /> */}
+            <Row
+              style={styles.row}
+              data={[
+                "Discount :",
+                <TaxBox
+                  placeholder="Discount"
+                  value={param.discount}
+                  amount={param.total_amt}
+                  onValueChange={(text) => {
                     param.discount = text;
                     calcParams();
                     setParam({
@@ -1324,10 +1346,7 @@ export default function ShopBillForm({ route, navigation }) {
                 />,
               ]}
             />
-            <Row
-              style={styles.row}
-              data={["Grand Total :", param.Gtotal_amt]}
-            />
+            <Row style={styles.row} data={["Grand Total :", param.Gtotal_amt]} />
           </View>
           <View style={{ height: 80 }}></View>
         </ScrollView>
