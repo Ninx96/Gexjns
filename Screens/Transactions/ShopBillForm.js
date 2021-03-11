@@ -179,8 +179,12 @@ export default function ShopBillForm({ route, navigation }) {
         100 -
       (isNaN(parseInt(param.discount)) ? 0 : parseInt(param.discount)) -
       (isNaN(parseInt(param.gaddi_comm)) ? 0 : parseInt(param.gaddi_comm)) +
-      (isNaN(parseInt(param.other_charges)) ? 0 : parseInt(param.other_charges)) -
-      (isNaN(parseInt(param.other_charges_less)) ? 0 : parseInt(param.other_charges_less));
+      (isNaN(parseInt(param.other_charges))
+        ? 0
+        : parseInt(param.other_charges)) -
+      (isNaN(parseInt(param.other_charges_less))
+        ? 0
+        : parseInt(param.other_charges_less));
 
     param.Gtotal_amt = temp.toString();
   };
@@ -188,12 +192,13 @@ export default function ShopBillForm({ route, navigation }) {
   const widthArr = [50, 200, 100, 100, 150, 100, 100, 200, 70, 150, 60, 150];
 
   const Refresh = () => {
-    postData(modal.po ? "Transaction/PickPoDC" : "Transaction/PickPackingSaleInDC", param).then(
-      (data) => {
-        //console.log(data);
-        setPoGrid(data);
-      }
-    );
+    postData(
+      modal.po ? "Transaction/PickPoDC" : "Transaction/PickPackingSaleInDC",
+      param
+    ).then((data) => {
+      //console.log(data);
+      setPoGrid(data);
+    });
   };
 
   React.useEffect(() => {
@@ -455,12 +460,12 @@ export default function ShopBillForm({ route, navigation }) {
                 }}
               >
                 <Picker
-                  selectedValue={param.broker_id}
+                  selectedValue={partymodal.type_id}
                   style={{ height: 45, width: "100%" }}
                   onValueChange={(itemValue, itemIndex) => {
                     setPartyModal({
                       ...partymodal,
-                      type_id: item.value,
+                      type_id: itemValue,
                     });
                   }}
                 >
@@ -499,7 +504,7 @@ export default function ShopBillForm({ route, navigation }) {
                   };
                   postData("Masters/InsertContactInPO", _param).then((data) => {
                     if (data.valid) {
-                      Alert.alert("Save Succeessfully!!");
+                      Alert.alert("Party Saved Succeessfully!!");
                       setPartyModal({ ...partymodal, partyForm: false });
                     } else {
                       Alert.alert(data.msg);
@@ -514,7 +519,11 @@ export default function ShopBillForm({ route, navigation }) {
           </Dialog.Actions>
         </Dialog>
 
-        <Dialog visible={modal.state} style={{ height: "95%" }} dismissable={true}>
+        <Dialog
+          visible={modal.state}
+          style={{ height: "95%" }}
+          dismissable={true}
+        >
           <Dialog.Title>{modal.po ? "Choose PO" : "Choose Sales"}</Dialog.Title>
           <Dialog.Content>
             <Searchbar
@@ -557,7 +566,8 @@ export default function ShopBillForm({ route, navigation }) {
                             customer_id: po.party_id == "" ? null : po.party_id,
                             type: po.type,
                             broker_id: po.broker_id == "" ? null : po.broker_id,
-                            broker_emp_id: po.broker_emp_id == "" ? null : po.broker_emp_id,
+                            broker_emp_id:
+                              po.broker_emp_id == "" ? null : po.broker_emp_id,
                             transport: po.transport,
                             remarks: po.remarks,
                           });
@@ -667,7 +677,8 @@ export default function ShopBillForm({ route, navigation }) {
             <Button
               onPress={() => {
                 setModal({ ...modal, item: false });
-                dcItem.amount = parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
+                dcItem.amount =
+                  parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
                 dcItem.total = parseFloat(dcItem.qty) * parseFloat(dcItem.rate);
                 //console.log(dcItem);
                 param.dcitem.splice(modal.index, 0, dcItem);
@@ -679,12 +690,19 @@ export default function ShopBillForm({ route, navigation }) {
         </Dialog>
 
         <Dialog visible={modal.qr} dismissable={true}>
-          <Dialog.Title style={{ textAlign: "center" }}>Scan QR Code</Dialog.Title>
+          <Dialog.Title style={{ textAlign: "center" }}>
+            Scan QR Code
+          </Dialog.Title>
           <FontAwesome
             name="close"
             size={30}
             color="black"
-            style={{ color: "black", position: "absolute", top: "2%", right: "5%" }}
+            style={{
+              color: "black",
+              position: "absolute",
+              top: "2%",
+              right: "5%",
+            }}
             color="#fff"
             onPress={() => {
               setModal({ ...modal, qr: false });
@@ -694,7 +712,9 @@ export default function ShopBillForm({ route, navigation }) {
             <View style={{ width: "100%", height: "92%" }}>
               <BarCodeScanner
                 //barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-                onBarCodeScanned={modal.scanned ? undefined : handleBarCodeScanned}
+                onBarCodeScanned={
+                  modal.scanned ? undefined : handleBarCodeScanned
+                }
                 style={[StyleSheet.absoluteFill, styles.barcontainer]}
               >
                 <View style={styles.layerTop} />
@@ -751,7 +771,9 @@ export default function ShopBillForm({ route, navigation }) {
                   borderRadius: 5,
                 },
                 onTextChange: (text) => {
-                  postData("StockDropdown/GetContactDetails", { search: text }).then((resp) => {
+                  postData("StockDropdown/GetContactDetails", {
+                    search: text,
+                  }).then((resp) => {
                     //console.log(resp);
                     setPartyList(resp);
                   });
@@ -778,13 +800,19 @@ export default function ShopBillForm({ route, navigation }) {
         <ScrollView>
           <View style={{ marginVertical: 5 }}>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <Button
                 icon="account-plus"
                 mode="contained"
                 compact={true}
-                onPress={() => setPartyModal({ ...partymodal, partyForm: true })}
+                onPress={() =>
+                  setPartyModal({ ...partymodal, partyForm: true })
+                }
               >
                 {" "}
                 Add Party
@@ -804,7 +832,11 @@ export default function ShopBillForm({ route, navigation }) {
               </Button>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <DatePicker
                 style={{ width: "40%", marginTop: 10, marginBottom: 4 }}
@@ -845,7 +877,11 @@ export default function ShopBillForm({ route, navigation }) {
               </TouchableRipple>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <TextInput
                 style={styles.input}
@@ -888,7 +924,11 @@ export default function ShopBillForm({ route, navigation }) {
               </View>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <View
                 style={{
@@ -930,7 +970,11 @@ export default function ShopBillForm({ route, navigation }) {
               ></TextInput>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <TextInput
                 style={styles.input}
@@ -959,7 +1003,11 @@ export default function ShopBillForm({ route, navigation }) {
               ></TextInput>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <TextInput
                 style={styles.input}
@@ -975,7 +1023,11 @@ export default function ShopBillForm({ route, navigation }) {
               ></TextInput>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <TextInput
                 style={styles.textArea}
@@ -993,21 +1045,34 @@ export default function ShopBillForm({ route, navigation }) {
               ></TextInput>
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly", marginVertical: 5 }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                marginVertical: 5,
+              }}
             >
               <View style={{ width: "40%" }}>
                 <Image
                   source={param.uri}
                   style={{ width: "100%", height: 150, borderRadius: 10 }}
                 />
-                <Button mode="contained" compact={true} onPress={ImageUpload} color="green">
+                <Button
+                  mode="contained"
+                  compact={true}
+                  onPress={ImageUpload}
+                  color="green"
+                >
                   Browse
                 </Button>
                 <Button
                   mode="contained"
                   color="red"
                   onPress={() => {
-                    setParam({ ...param, uri: require("../../assets/upload.png"), file_path: "" });
+                    setParam({
+                      ...param,
+                      uri: require("../../assets/upload.png"),
+                      file_path: "",
+                    });
                   }}
                 >
                   Clear
@@ -1018,7 +1083,12 @@ export default function ShopBillForm({ route, navigation }) {
                   source={param.uri1}
                   style={{ width: "100%", height: 150, borderRadius: 10 }}
                 />
-                <Button mode="contained" compact={true} onPress={Image2Upload} color="green">
+                <Button
+                  mode="contained"
+                  compact={true}
+                  onPress={Image2Upload}
+                  color="green"
+                >
                   Browse
                 </Button>
                 <Button
@@ -1039,7 +1109,13 @@ export default function ShopBillForm({ route, navigation }) {
           </View>
           <View style={{ marginVertical: 5 }}>
             <Headline style={{ alignSelf: "center" }}>Item Details</Headline>
-            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <View>
                 <View
                   style={{
@@ -1083,7 +1159,9 @@ export default function ShopBillForm({ route, navigation }) {
                 </View>
 
                 <ScrollView horizontal={true}>
-                  <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
+                  <Table
+                    borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}
+                  >
                     <Row
                       data={["#", "Barcode", "Qty", "Rate", "Amount", "Action"]}
                       style={styles.head}
@@ -1092,10 +1170,13 @@ export default function ShopBillForm({ route, navigation }) {
                     />
                     {param.dcitem.map((item, index) => {
                       Tqty =
-                        parseFloat(Tqty) + (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
+                        parseFloat(Tqty) +
+                        (isNaN(parseInt(item.qty)) ? 0 : parseInt(item.qty));
                       Tamt =
                         parseFloat(Tamt) +
-                        (isNaN(parseInt(item.amount)) ? 0 : parseInt(item.amount));
+                        (isNaN(parseInt(item.amount))
+                          ? 0
+                          : parseInt(item.amount));
                       param.total_qty = Tqty;
                       param.total_amt = Tamt;
                       //console.log(item);
@@ -1137,7 +1218,10 @@ export default function ShopBillForm({ route, navigation }) {
 
           <View style={{ marginVertical: 5, paddingHorizontal: 10 }}>
             <Row style={styles.row} data={["Total Qty :", param.total_qty]} />
-            <Row style={styles.row} data={["Total Amount :", param.total_amt]} />
+            <Row
+              style={styles.row}
+              data={["Total Amount :", param.total_amt]}
+            />
             <Row
               style={styles.row}
               data={[
@@ -1240,7 +1324,10 @@ export default function ShopBillForm({ route, navigation }) {
                 />,
               ]}
             />
-            <Row style={styles.row} data={["Grand Total :", param.Gtotal_amt]} />
+            <Row
+              style={styles.row}
+              data={["Grand Total :", param.Gtotal_amt]}
+            />
           </View>
           <View style={{ height: 80 }}></View>
         </ScrollView>
@@ -1249,8 +1336,8 @@ export default function ShopBillForm({ route, navigation }) {
         style={styles.fabRight}
         icon="check"
         onPress={() => {
-          if (param.company_name == "") {
-            alert("Please Fill Company Name");
+          if (param.customer_id == "") {
+            alert("Please Select Party Name");
           } else {
             setloading(true);
 
